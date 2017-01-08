@@ -4,7 +4,14 @@
 #include <iostream>
 #include <algorithm>
 
+#include <errno.h>
 #include "ros/ros.h"
+#include <gazebo/physics/physics.hh>
+#include "gazebo/transport/transport.hh"
+#include "gazebo/msgs/msgs.hh"
+#include "gazebo/gazebo.hh"
+#include "std_srvs/Empty.h"
+#include "std_msgs/String.h"
 
 #include <dynamic_reconfigure/DoubleParameter.h>
 #include <dynamic_reconfigure/Reconfigure.h>
@@ -17,6 +24,7 @@
 
 #include "dyret_utils/wait_for_ros.h"
 #include "dyret_utils/timeHandling.h"
+#include "dyret_utils/reset.h"
 
 #include "external/sferes/phen/parameters.hpp"
 #include "external/sferes/gen/evo_float.hpp"
@@ -60,6 +68,32 @@ FILE* getEvoPathFileHandle(std::string fileName){
   return handleToReturn;
 }
 
+void callback(const std_msgs::String::ConstPtr& msg)
+{
+    ROS_INFO("I heard: [%s]", msg->data.c_str());
+}
+
+void collectGazeboData(ros::NodeHandle n){
+
+    ros::Subscriber sub = n.subscribe("gazebo/model_states", 1000, callback);
+
+    sub.
+
+    printf("\n"
+           "Henter informasjon fra gazebo\n");
+
+
+}
+void resetSimulation(){
+    static std_srvs::Empty empty;
+
+    if(!ros::service::call("/gazebo/reset_simulation", empty)){
+        ROS_ERROR_NAMED("dyret_utils::reset_simulation",
+                        "Gazebo could not reset the simulation for us");
+    }
+    dyret_utils::reset_dyret();
+    sleep(2);
+}
 
 void startGaitRecording(ros::ServiceClient get_gait_evaluation_client){
   dyret_common::GetGaitEvaluation srv;
@@ -200,7 +234,7 @@ std::vector<float> evaluateIndividual(std::vector<double> parameters, std::strin
   std::vector<float> trajectoryAngles(1);
   std::vector<float> trajectoryDistances(1);
   std::vector<int>   trajectoryTimeouts(1);
-  trajectoryDistances[0] = 1000.0;
+  trajectoryDistances[0] = 9999.0;
   trajectoryTimeouts[0] = 10.0; // 10 sec timeout
 
   resetTrajectoryPos(trajectoryMessage_pub); // Reset position before starting
@@ -363,6 +397,7 @@ public:
           printf("Got invalid fitness: reset the robot and choose action (r/d): ");
 
           char choice;
+
           scanf(" %c", &choice);
 
           if (choice == 'd'){ // Discard
@@ -478,6 +513,7 @@ int main(int argc, char **argv){
            "3 - Evo SO (mocapSpeed)\n"
            "4 - Evo SO (stability)\n"
            "5 - Evo MO (mocapSpeed+stability)\n"
+           "6 - Monte Carlo\n"
            "9 - Test fitness noise (10min)\n"
            "0 - Exit\n> ");
 
@@ -635,45 +671,82 @@ int main(int argc, char **argv){
         }
         break;
       }
-      case '3':
+    case '3':
         fitnessFunctions.clear();
         fitnessFunctions.emplace_back("MocapSpeed");
         run_ea(argc, argv, ea, getEvoInfoString());
         break;
-      case '4':
+    case '4':
         fitnessFunctions.clear();
         fitnessFunctions.emplace_back("Stability");
         run_ea(argc, argv, ea, getEvoInfoString());
         break;
-      case '5':
+    case '5':
         fitnessFunctions.clear();
         fitnessFunctions.emplace_back("MocapSpeed");
         fitnessFunctions.emplace_back("Stability");
         run_ea(argc, argv, ea, getEvoInfoString());
         break;
-      case '9':
-        {
+        
+    case '6':
+        //Starter MonteCarlo simulering
+        resetSimulation();
+        for(int k = 0; k < 2; k++) {
+            std::vector<double> individualParameters;
+            individualParameters = {67.643906,  // stepLength
+                                    61.517610,  // stepHeight
+                                    16.663189,  // smoothing
+                                    0.650102,  // gaitFrequency
+                                    NAN,  // speed
+                                    0.102479,  // wagPhase -0.2 -> 0.2
+                                    0.0,  // wagAmplitude_x
+                                    28.169140}; // wagAmplitude_y
+            /**/
 
-          for (int i = 0; i < 10; i++){
-              resetGaitRecording(get_gait_evaluation_client);
-              startGaitRecording(get_gait_evaluation_client);
+            fitnessFunctions.clear();
+            fitnessFunctions.emplace_back("MocapSpeed");
+            fitnessFunctions.emplace_back("Stability");
 
-              sleep(60);
+            std::string fitnessString;
+            std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
+                                                                  gaitControllerStatus_client, trajectoryMessage_pub,
+                                                                  get_gait_evaluation_client);
+            printf("Returned fitness (%lu): ", fitnessResult.size());
+            for (int i = 0; i < fitnessResult.size(); i++) {
+                printf("%.2f ", fitnessResult[i]);
+            }
+            printf("\n");
 
-              std::vector<float> gaitResults = getGaitResults(get_gait_evaluation_client);
-              printf("\tRes: ");
-              for (int i = 0; i < gaitResults.size(); i++){
-                  printf("%.5f", gaitResults[i]);
-                  if (i != (gaitResults.size()-1)) printf(", "); else printf("\n");
-              }
-          }
+            collectGazeboData(n);
 
-          break;
+            resetSimulation();
         }
-      case '0':
+
+
+
+        break;
+    case '9':
+    {
+        for (int i = 0; i < 10; i++){
+            resetGaitRecording(get_gait_evaluation_client);
+            startGaitRecording(get_gait_evaluation_client);
+            
+            sleep(60);
+            
+            std::vector<float> gaitResults = getGaitResults(get_gait_evaluation_client);
+            printf("\tRes: ");
+            for (int i = 0; i < gaitResults.size(); i++){
+                printf("%.5f", gaitResults[i]);
+                if (i != (gaitResults.size()-1)) printf(", "); else printf("\n");
+            }
+        }
+        
+        break;
+    }
+    case '0':
         printf("\tExiting program\n");
         break;
-      default:
+    default:
         printf("\tUndefined choice\n");
         break;
     };

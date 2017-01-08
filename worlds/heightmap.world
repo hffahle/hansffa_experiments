@@ -4,7 +4,7 @@
     <!-- A global light source -->
     <gui>
       <camera name="user_camera">
-        <pose>-5 0 5 0 0.8 0</pose>
+        <pose>-5 3 5 0 0.8 0</pose>
       </camera>
     </gui>
     <include>
@@ -21,7 +21,7 @@
             <heightmap>
               <uri>model://heightmap/materials/textures/heightmap_test.png</uri>
               <size>10 10 0.3</size>
-              <pos>0 0 0</pos>
+              <pos>0 9.5 0</pos>
             </heightmap>
         </geometry>
         </collision>
@@ -54,7 +54,7 @@
               </blend>
               <uri>model://heightmap/materials/textures/heightmap_test.png</uri>
               <size>10 10 0.3</size>
-              <pos>0 0 0</pos>
+              <pos>0 4.7 0</pos>
             </heightmap>
           </geometry>
         </visual>

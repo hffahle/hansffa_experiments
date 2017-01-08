@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   dyret_common
   dyret_utils
   dyret_hardware
+  gazebo_ros
 )
 
 find_package(Boost REQUIRED COMPONENTS 
@@ -33,15 +34,25 @@ find_package(TBB REQUIRED)
 
 find_package(OpenCV REQUIRED PATHS /usr/local/share/OpenCV NO_DEFAULT_PATH)
 
+# Depend on system install of Gazebo
+find_package(gazebo REQUIRED)
+
 catkin_package(
-  CATKIN_DEPENDS message_runtime
+  CATKIN_DEPENDS
+  message_runtime
+  roscpp
+  gazebo_ros
+  
 )
+
+link_directories(${GAZEBO_LIBRARY_DIRS})
 
 include_directories(include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
   ${TBB_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
 )
 
 add_executable(exp1Gui
@@ -50,6 +61,7 @@ add_executable(exp1Gui
 target_link_libraries(exp1Gui ${catkin_LIBRARIES})
 target_link_libraries(exp1Gui ${Boost_LIBRARIES})
 target_link_libraries(exp1Gui ${TBB_LIBRARIES})
+target_link_libraries(exp1Gui ${GAZEBO_LIBRARIES})
 add_dependencies(exp1Gui
   ${catkin_EXPORTED_TARGETS})
 
@@ -66,6 +78,8 @@ add_executable(heightmapGen
 target_link_libraries(heightmapGen ${OpenCV_LIBS})
 add_dependencies(heightmapGen
   ${catkin_EXPORTED_TARGETS})
+
+
              
             
 
