@@ -12,6 +12,7 @@
 #include "gazebo/gazebo.hh"
 #include "std_srvs/Empty.h"
 #include "std_msgs/String.h"
+#include "gazebo_msgs/GetModelState.h"
 
 #include <dynamic_reconfigure/DoubleParameter.h>
 #include <dynamic_reconfigure/Reconfigure.h>
@@ -68,19 +69,30 @@ FILE* getEvoPathFileHandle(std::string fileName){
   return handleToReturn;
 }
 
-void callback(const std_msgs::String::ConstPtr& msg)
-{
-    ROS_INFO("I heard: [%s]", msg->data.c_str());
-}
 
 void collectGazeboData(ros::NodeHandle n){
 
-    ros::Subscriber sub = n.subscribe("gazebo/model_states", 1000, callback);
+    //ros::Subscriber sub = n.subscribe("/gazebo/model_states", 1000, poseCallback);
 
-    sub.
+    printf("\nHenter informasjon fra gazebo\n");
 
-    printf("\n"
-           "Henter informasjon fra gazebo\n");
+    ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    gazebo_msgs::GetModelState getmodelstate;
+    getmodelstate.request.model_name ="dyret";
+    gms_c.call(getmodelstate);
+
+    printf("\nPosition\n");
+    printf("%.6f\n", getmodelstate.response.pose.position.x);
+    printf("%.6f\n", getmodelstate.response.pose.position.y);
+    printf("%.6f\n", getmodelstate.response.pose.position.z);
+
+    printf("\nOrientation\n");
+    printf("%.6f\n", getmodelstate.response.pose.orientation.x);
+    printf("%.6f\n", getmodelstate.response.pose.orientation.y);
+    printf("%.6f\n", getmodelstate.response.pose.orientation.z);
+    printf("%.6f\n\n", getmodelstate.response.pose.orientation.w);
+
+
 
 
 }
@@ -93,6 +105,22 @@ void resetSimulation(){
     }
     dyret_utils::reset_dyret();
     sleep(2);
+}
+
+void pauseSimulation(){
+    static std_srvs::Empty empty;
+	if(!ros::service::call("/gazebo/pause_physics", empty)){
+        ROS_ERROR_NAMED("dyret_utils::reset_simulation",
+                        "Could not pause physics after world reset");
+    }
+}
+
+void unpauseSimulation(){
+    static std_srvs::Empty empty;
+    if(!ros::service::call("/gazebo/unpause_physics", empty)){
+        ROS_ERROR_NAMED("dyret_utils::reset_simulation",
+					    "Could not unpause physics during simulation reset");
+    }
 }
 
 void startGaitRecording(ros::ServiceClient get_gait_evaluation_client){
@@ -508,13 +536,7 @@ int main(int argc, char **argv){
 
   int inputChar;
   do {
-    printf("1 - Run 1000mm front and back (balanced)\n"
-           "2 - Run 1000mm front and back (fast)\n"
-           "3 - Evo SO (mocapSpeed)\n"
-           "4 - Evo SO (stability)\n"
-           "5 - Evo MO (mocapSpeed+stability)\n"
-           "6 - Monte Carlo\n"
-           "9 - Test fitness noise (10min)\n"
+    printf("1 - Monte Carlo\n"
            "0 - Exit\n> ");
 
     currentIndividual = 1;
@@ -523,226 +545,69 @@ int main(int argc, char **argv){
     std::cin.ignore(1000,'\n');
 
     switch(inputChar){
-      case '1':
-      {
-        for (int i = 0; i < 1; i++){
-          std::vector<double> individualParameters;
-
-          /*// SO_speed_1_fast:
-          individualParameters = {142.497879,  // stepLength
-                                   74.101233,  // stepHeight
-                                   40.617961,  // smoothing
-                                    1.176102,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.187434,  // wagPhase -0.2 -> 0.2
-                                   34.262195,  // wagAmplitude_x
-                                   33.369043}; // wagAmplitude_y
-          /**/
-
-          /*// SO_stability_1_stable:
-          individualParameters = { 62.413095,  // stepLength
-                                   58.627531,  // stepHeight
-                                   29.707131,  // smoothing
-                                    0.200674,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.014742,  // wagPhase -0.2 -> 0.2
-                                   48.275462,  // wagAmplitude_x
-                                   25.249073}; // wagAmplitude_y
-          /**/
-
-          /*// MO_speedStability_1_fast
-          individualParameters = {149.586797,  // stepLength
-                                   48.647040,  // stepHeight
-                                   22.238316,  // smoothing
-                                    1.089446,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.161493,  // wagPhase -0.2 -> 0.2
-                                   48.757249,  // wagAmplitude_x
-                                    7.464203}; // wagAmplitude_y
-          /**/
-
-          /*// MO_speedStability_1_stable
-          individualParameters = { 82.370520,  // stepLength
-                                   60.338199,  // stepHeight
-                                   47.710946,  // smoothing
-                                    0.241783,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.089293,  // wagPhase -0.2 -> 0.2
-                                   44.656688,  // wagAmplitude_x
-                                   23.324150}; // wagAmplitude_y
-          /**/
-
-          // MO_speedStability_1_balanced
-          individualParameters = { 67.643906,  // stepLength
-                                   61.517610,  // stepHeight
-                                   16.663189,  // smoothing
-                                    0.650102,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.102479,  // wagPhase -0.2 -> 0.2
-                                         0.0,  // wagAmplitude_x
-                                   28.169140}; // wagAmplitude_y
-          /**/
-
-          fitnessFunctions.clear();
-          fitnessFunctions.emplace_back("MocapSpeed");
-          fitnessFunctions.emplace_back("Stability");
-
-          std::string fitnessString;
-          std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false, gaitControllerStatus_client, trajectoryMessage_pub, get_gait_evaluation_client);
-          printf("Returned fitness (%lu): ", fitnessResult.size());
-          for (int i = 0; i < fitnessResult.size(); i++){
-              printf("%.2f ", fitnessResult[i]);
-          }
-          printf("\n");
-        }
-        break;
-      }
-      case '2':
-      {
-        for (int i = 0; i < 1; i++){
-          std::vector<double> individualParameters;
-
-          // SO_speed_1_fast:
-          individualParameters = {142.497879,  // stepLength
-                                   74.101233,  // stepHeight
-                                   40.617961,  // smoothing
-                                    1.176102,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.187434,  // wagPhase -0.2 -> 0.2
-                                   34.262195,  // wagAmplitude_x
-                                   33.369043}; // wagAmplitude_y
-          /**/
-
-          /*// SO_stability_1_stable:
-          individualParameters = { 62.413095,  // stepLength
-                                   58.627531,  // stepHeight
-                                   29.707131,  // smoothing
-                                    0.200674,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.014742,  // wagPhase -0.2 -> 0.2
-                                   48.275462,  // wagAmplitude_x
-                                   25.249073}; // wagAmplitude_y
-          /**/
-
-          /*// MO_speedStability_1_fast
-          individualParameters = {149.586797,  // stepLength
-                                   48.647040,  // stepHeight
-                                   22.238316,  // smoothing
-                                    1.089446,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.161493,  // wagPhase -0.2 -> 0.2
-                                   48.757249,  // wagAmplitude_x
-                                    7.464203}; // wagAmplitude_y
-          /**/
-
-          /*// MO_speedStability_1_stable
-          individualParameters = { 82.370520,  // stepLength
-                                   60.338199,  // stepHeight
-                                   47.710946,  // smoothing
-                                    0.241783,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.089293,  // wagPhase -0.2 -> 0.2
-                                   44.656688,  // wagAmplitude_x
-                                   23.324150}; // wagAmplitude_y
-          /**/
-
-          /*// MO_speedStability_1_balanced
-          individualParameters = { 67.643906,  // stepLength
-                                   61.517610,  // stepHeight
-                                   16.663189,  // smoothing
-                                    0.650102,  // gaitFrequency
-                                         NAN,  // speed
-                                    0.102479,  // wagPhase -0.2 -> 0.2
-                                         0.0,  // wagAmplitude_x
-                                   28.169140}; // wagAmplitude_y
-          /**/
-
-          fitnessFunctions.clear();
-          fitnessFunctions.emplace_back("MocapSpeed");
-          fitnessFunctions.emplace_back("Stability");
-
-          std::string fitnessString;
-          std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false, gaitControllerStatus_client, trajectoryMessage_pub, get_gait_evaluation_client);
-          printf("Returned fitness (%lu): ", fitnessResult.size());
-          for (int i = 0; i < fitnessResult.size(); i++){
-              printf("%.2f ", fitnessResult[i]);
-          }
-          printf("\n");
-        }
-        break;
-      }
-    case '3':
-        fitnessFunctions.clear();
-        fitnessFunctions.emplace_back("MocapSpeed");
-        run_ea(argc, argv, ea, getEvoInfoString());
-        break;
-    case '4':
-        fitnessFunctions.clear();
-        fitnessFunctions.emplace_back("Stability");
-        run_ea(argc, argv, ea, getEvoInfoString());
-        break;
-    case '5':
-        fitnessFunctions.clear();
-        fitnessFunctions.emplace_back("MocapSpeed");
-        fitnessFunctions.emplace_back("Stability");
-        run_ea(argc, argv, ea, getEvoInfoString());
-        break;
-        
-    case '6':
+    case '1':
         //Starter MonteCarlo simulering
         resetSimulation();
         for(int k = 0; k < 2; k++) {
-            std::vector<double> individualParameters;
-            individualParameters = {67.643906,  // stepLength
-                                    61.517610,  // stepHeight
-                                    16.663189,  // smoothing
-                                    0.650102,  // gaitFrequency
-                                    NAN,  // speed
-                                    0.102479,  // wagPhase -0.2 -> 0.2
-                                    0.0,  // wagAmplitude_x
-                                    28.169140}; // wagAmplitude_y
-            /**/
+            if(k == 0){
+                std::vector<double> individualParameters;
+                individualParameters = { 67.643906,  // stepLength
+                                         61.517610,  // stepHeight
+                                         16.663189,  // smoothing
+                                         0.650102,  // gaitFrequency
+                                         NAN,  // speed
+                                         0.102479,  // wagPhase -0.2 -> 0.2
+                                         0.0,  // wagAmplitude_x
+                                         28.169140}; // wagAmplitude_y
 
-            fitnessFunctions.clear();
-            fitnessFunctions.emplace_back("MocapSpeed");
-            fitnessFunctions.emplace_back("Stability");
+                fitnessFunctions.clear();
+                fitnessFunctions.emplace_back("MocapSpeed");
+                fitnessFunctions.emplace_back("Stability");
 
-            std::string fitnessString;
-            std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
-                                                                  gaitControllerStatus_client, trajectoryMessage_pub,
-                                                                  get_gait_evaluation_client);
-            printf("Returned fitness (%lu): ", fitnessResult.size());
-            for (int i = 0; i < fitnessResult.size(); i++) {
-                printf("%.2f ", fitnessResult[i]);
+                std::string fitnessString;
+                std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
+                                                                      gaitControllerStatus_client, trajectoryMessage_pub,
+                                                                      get_gait_evaluation_client);
+                printf("Returned fitness (%lu): ", fitnessResult.size());
+                for (int i = 0; i < fitnessResult.size(); i++) {
+                    printf("%.2f ", fitnessResult[i]);
+                }
+                printf("\n");
+            }else if(k == 1){
+                std::vector<double> individualParameters;
+                individualParameters = {142.497879,  // stepLength
+                                        74.101233,  // stepHeight
+                                        40.617961,  // smoothing
+                                        1.176102,  // gaitFrequency
+                                        NAN,  // speed
+                                        0.187434,  // wagPhase -0.2 -> 0.2
+                                        34.262195,  // wagAmplitude_x
+                                        33.369043}; // wagAmplitude_y
+
+                fitnessFunctions.clear();
+                fitnessFunctions.emplace_back("MocapSpeed");
+                fitnessFunctions.emplace_back("Stability");
+
+                std::string fitnessString;
+                std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
+                                                                      gaitControllerStatus_client, trajectoryMessage_pub,
+                                                                      get_gait_evaluation_client);
+                printf("Returned fitness (%lu): ", fitnessResult.size());
+                for (int i = 0; i < fitnessResult.size(); i++) {
+                    printf("%.2f ", fitnessResult[i]);
+                }
+                printf("\n");
+            }else{
+                printf("Something went wrong\n");
             }
-            printf("\n");
 
+            pauseSimulation();
             collectGazeboData(n);
+            unpauseSimulation();
 
             resetSimulation();
         }
-
-
-
         break;
-    case '9':
-    {
-        for (int i = 0; i < 10; i++){
-            resetGaitRecording(get_gait_evaluation_client);
-            startGaitRecording(get_gait_evaluation_client);
-            
-            sleep(60);
-            
-            std::vector<float> gaitResults = getGaitResults(get_gait_evaluation_client);
-            printf("\tRes: ");
-            for (int i = 0; i < gaitResults.size(); i++){
-                printf("%.5f", gaitResults[i]);
-                if (i != (gaitResults.size()-1)) printf(", "); else printf("\n");
-            }
-        }
-        
-        break;
-    }
     case '0':
         printf("\tExiting program\n");
         break;
