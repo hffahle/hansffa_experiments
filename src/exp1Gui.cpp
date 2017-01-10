@@ -13,6 +13,7 @@
 #include "std_srvs/Empty.h"
 #include "std_msgs/String.h"
 #include "gazebo_msgs/GetModelState.h"
+#include <math.h>
 
 #include <dynamic_reconfigure/DoubleParameter.h>
 #include <dynamic_reconfigure/Reconfigure.h>
@@ -90,7 +91,20 @@ void collectGazeboData(ros::NodeHandle n){
     printf("%.6f\n", getmodelstate.response.pose.orientation.x);
     printf("%.6f\n", getmodelstate.response.pose.orientation.y);
     printf("%.6f\n", getmodelstate.response.pose.orientation.z);
-    printf("%.6f\n\n", getmodelstate.response.pose.orientation.w);
+    printf("%.6f\n", getmodelstate.response.pose.orientation.w);
+
+    printf("\nRotation\n");
+    float angle = 2 * acos(getmodelstate.response.pose.orientation.w);
+
+    float pi = 3.14159265359;
+    angle = angle * (180/pi);
+
+    printf("%.6f\n", angle);
+    if(angle > 180){
+        printf("Dyret has fallen\n");
+    }
+
+
 
 
 
