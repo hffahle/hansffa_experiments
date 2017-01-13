@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 #include <vector>
 #include <iostream>
 #include <algorithm>
@@ -14,6 +15,11 @@
 #include "std_msgs/String.h"
 #include "gazebo_msgs/GetModelState.h"
 #include <math.h>
+
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <ctime>
 
 #include <dynamic_reconfigure/DoubleParameter.h>
 #include <dynamic_reconfigure/Reconfigure.h>
@@ -71,9 +77,44 @@ FILE* getEvoPathFileHandle(std::string fileName){
 }
 
 
-void collectGazeboData(ros::NodeHandle n){
+void analysePosition(float x, float y, float z){
 
-    //ros::Subscriber sub = n.subscribe("/gazebo/model_states", 1000, poseCallback);
+    float absX = std::abs(x);
+    float angle = atan(absX/y);
+    float pi = 3.14159265359;
+    angle = angle * (180/pi);
+
+    float dist = sqrt((x*x) + (y*y));
+
+    if(x > 0){
+        printf("Dyret moved forward %.6f with a degree of %.6f to the left\n", dist, angle);
+    }else{
+        printf("Dyret moved forward %.6f with a degree of %.6f to the right\n", dist, angle);
+    }
+
+    float goalDist = 3.0;
+
+    float diffY = goalDist - y;
+    float distToGoal = sqrt((x*x) + (diffY*diffY));
+
+    printf("Dyret has %.6f meters left to the goal form its current position\n\n", distToGoal);
+
+}
+
+void analyseOrientation(float qx, float qy, float qz, float qw){
+    printf("\nRotation\n");
+    float angle = 2 * acos(qw);
+
+    float pi = 3.14159265359;
+    angle = angle * (180/pi);
+
+    printf("%.6f\n\n", angle);
+    if(angle > 120){
+        printf("Dyret has fallen\n\n");
+    }
+}
+
+void collectGazeboData(ros::NodeHandle n){
 
     printf("\nHenter informasjon fra gazebo\n");
 
@@ -82,10 +123,13 @@ void collectGazeboData(ros::NodeHandle n){
     getmodelstate.request.model_name ="dyret";
     gms_c.call(getmodelstate);
 
-    printf("\nPosition\n");
+
+    printf("Position\n");
     printf("%.6f\n", getmodelstate.response.pose.position.x);
     printf("%.6f\n", getmodelstate.response.pose.position.y);
-    printf("%.6f\n", getmodelstate.response.pose.position.z);
+    printf("%.6f\n\n", getmodelstate.response.pose.position.z);
+
+    analysePosition(getmodelstate.response.pose.position.x, getmodelstate.response.pose.position.y, getmodelstate.response.pose.position.z);
 
     printf("\nOrientation\n");
     printf("%.6f\n", getmodelstate.response.pose.orientation.x);
@@ -93,21 +137,7 @@ void collectGazeboData(ros::NodeHandle n){
     printf("%.6f\n", getmodelstate.response.pose.orientation.z);
     printf("%.6f\n", getmodelstate.response.pose.orientation.w);
 
-    printf("\nRotation\n");
-    float angle = 2 * acos(getmodelstate.response.pose.orientation.w);
-
-    float pi = 3.14159265359;
-    angle = angle * (180/pi);
-
-    printf("%.6f\n", angle);
-    if(angle > 180){
-        printf("Dyret has fallen\n");
-    }
-
-
-
-
-
+    analyseOrientation(getmodelstate.response.pose.orientation.x, getmodelstate.response.pose.orientation.y, getmodelstate.response.pose.orientation.z, getmodelstate.response.pose.orientation.w);
 
 }
 void resetSimulation(){
@@ -135,6 +165,30 @@ void unpauseSimulation(){
         ROS_ERROR_NAMED("dyret_utils::reset_simulation",
 					    "Could not unpause physics during simulation reset");
     }
+}
+
+const char* openFile(){
+    const char *path="/home/hansffa/Documents/test_resultater/test_result_";
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer[80];
+
+    time (&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer,80,"%d-%m-%Y",timeinfo);
+    std::string str(buffer);
+
+    std::cout << str;
+    std::string tmpStr = path + str;
+    path = tmpStr.c_str();
+    std::ofstream out;
+    out.open(path, std::ios::out | std::ios::app);
+    out << "Position:" << std::endl;
+    out.close();
+
+    return path;
+
 }
 
 void startGaitRecording(ros::ServiceClient get_gait_evaluation_client){
@@ -276,8 +330,8 @@ std::vector<float> evaluateIndividual(std::vector<double> parameters, std::strin
   std::vector<float> trajectoryAngles(1);
   std::vector<float> trajectoryDistances(1);
   std::vector<int>   trajectoryTimeouts(1);
-  trajectoryDistances[0] = 9999.0;
-  trajectoryTimeouts[0] = 10.0; // 10 sec timeout
+  trajectoryDistances[0] = 2000.0;
+  trajectoryTimeouts[0] = 30.0; // 10 sec timeout
 
   resetTrajectoryPos(trajectoryMessage_pub); // Reset position before starting
   resetGaitRecording(get_gait_evaluation_client);
@@ -511,7 +565,7 @@ std::string getEvoInfoString(){
 }
 
 int main(int argc, char **argv){
-
+//const char *path;
   fitnessFunctions.emplace_back("Speed");
   fitnessFunctions.emplace_back("Efficiency");
 
@@ -560,10 +614,16 @@ int main(int argc, char **argv){
 
     switch(inputChar){
     case '1':
+
+        //path = openFile();
+
         //Starter MonteCarlo simulering
         resetSimulation();
         for(int k = 0; k < 2; k++) {
+            printf("----------Simulering %d starter----------\n", k+1);
+            printf("Robot: Dyret\n");
             if(k == 0){
+                printf("Gait: Slow\n\n");
                 std::vector<double> individualParameters;
                 individualParameters = { 67.643906,  // stepLength
                                          61.517610,  // stepHeight
@@ -588,6 +648,7 @@ int main(int argc, char **argv){
                 }
                 printf("\n");
             }else if(k == 1){
+                printf("Gait: Fast\n\n");
                 std::vector<double> individualParameters;
                 individualParameters = {142.497879,  // stepLength
                                         74.101233,  // stepHeight
@@ -616,9 +677,10 @@ int main(int argc, char **argv){
             }
 
             pauseSimulation();
+            //std::cout << path;
             collectGazeboData(n);
             unpauseSimulation();
-
+            printf("----------Simulering %d ferdig----------\n\n", k+1);
             resetSimulation();
         }
         break;

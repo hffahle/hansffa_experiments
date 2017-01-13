@@ -10,6 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fccd861c-79a2-4e2f-a232-0bca040fdbad" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/exp1Gui.cpp" afterPath="$PROJECT_DIR$/src/exp1Gui.cpp" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -31,10 +32,10 @@
       <file leaf-file-name="exp1Gui.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/exp1Gui.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="612">
-              <caret line="103" column="34" lean-forward="false" selection-start-line="103" selection-start-column="34" selection-end-line="103" selection-end-column="34" />
+            <state relative-caret-position="-9702">
+              <caret line="81" column="29" lean-forward="false" selection-start-line="81" selection-start-column="29" selection-end-line="81" selection-end-column="29" />
               <folding>
-                <element signature="e#13016#13032#0" expanded="true" />
+                <element signature="e#14575#14591#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -96,6 +97,9 @@
       <find>Subscriber</find>
       <find>spinner</find>
       <find>evaluateIndividual</find>
+      <find>openFile</find>
+      <find>collectGazeboData</find>
+      <find>mm</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -379,12 +383,13 @@
       <workItem from="1483689967410" duration="3000000" />
       <workItem from="1483694452444" duration="5948000" />
       <workItem from="1483884682544" duration="6547000" />
-      <workItem from="1484042899384" duration="14711000" />
+      <workItem from="1484042899384" duration="14927000" />
+      <workItem from="1484206508028" duration="16565000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="51264000" />
+    <option name="totallyTimeSpent" value="68045000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="24" width="1920" height="1176" extended-state="6" />
@@ -425,7 +430,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13016#13032#0" expanded="true" />
+            <element signature="e#14575#14591#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -467,7 +472,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13016#13032#0" expanded="true" />
+            <element signature="e#14575#14591#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -509,7 +514,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13016#13032#0" expanded="true" />
+            <element signature="e#14575#14591#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -551,7 +556,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13016#13032#0" expanded="true" />
+            <element signature="e#14575#14591#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -569,7 +574,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13016#13032#0" expanded="true" />
+            <element signature="e#14575#14591#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -587,12 +592,22 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#13016#13032#0" expanded="true" />
+            <element signature="e#14575#14591#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/heightmapGen.cpp">
+    <entry file="file://$PROJECT_DIR$/src/exp1Gui.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-9702">
+          <caret line="81" column="29" lean-forward="false" selection-start-line="81" selection-start-column="29" selection-end-line="81" selection-end-column="29" />
+          <folding>
+            <element signature="e#14575#14591#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/launch/hardwareTest.launch">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -616,21 +631,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/launch/hardwareTest.launch">
+    <entry file="file://$PROJECT_DIR$/src/heightmapGen.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/exp1Gui.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="103" column="34" lean-forward="false" selection-start-line="103" selection-start-column="34" selection-end-line="103" selection-end-column="34" />
-          <folding>
-            <element signature="e#13016#13032#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
