@@ -77,69 +77,78 @@ FILE* getEvoPathFileHandle(std::string fileName){
 }
 
 
-void analysePosition(float x, float y, float z){
-
-    float absX = std::abs(x);
-    float angle = atan(absX/y);
-    float pi = 3.14159265359;
-    angle = angle * (180/pi);
-
-    float dist = sqrt((x*x) + (y*y));
-
-    if(x > 0){
-        printf("Dyret moved forward %.6f with a degree of %.6f to the left\n", dist, angle);
-    }else{
-        printf("Dyret moved forward %.6f with a degree of %.6f to the right\n", dist, angle);
-    }
-
-    float goalDist = 3.0;
-
-    float diffY = goalDist - y;
-    float distToGoal = sqrt((x*x) + (diffY*diffY));
-
-    printf("Dyret has %.6f meters left to the goal form its current position\n\n", distToGoal);
-
-}
-
-void analyseOrientation(float qx, float qy, float qz, float qw){
-    printf("\nRotation\n");
-    float angle = 2 * acos(qw);
-
-    float pi = 3.14159265359;
-    angle = angle * (180/pi);
-
-    printf("%.6f\n\n", angle);
-    if(angle > 120){
-        printf("Dyret has fallen\n\n");
-    }
-}
-
-void collectGazeboData(ros::NodeHandle n){
-
-    printf("\nHenter informasjon fra gazebo\n");
+int checkFall(ros::NodeHandle n, int numberOfFalls){
 
     ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     gazebo_msgs::GetModelState getmodelstate;
     getmodelstate.request.model_name ="dyret";
     gms_c.call(getmodelstate);
 
+    float qx = getmodelstate.response.pose.orientation.x;
+    float qy= getmodelstate.response.pose.orientation.y;
+    float qz = getmodelstate.response.pose.orientation.z;
+    float qw = getmodelstate.response.pose.orientation.w;
+    float angle = 2 * acos(qw);
 
-    printf("Position\n");
-    printf("%.6f\n", getmodelstate.response.pose.position.x);
-    printf("%.6f\n", getmodelstate.response.pose.position.y);
-    printf("%.6f\n\n", getmodelstate.response.pose.position.z);
+    float pi = 3.14159265359;
+    angle = angle * (180/pi);
 
-    analysePosition(getmodelstate.response.pose.position.x, getmodelstate.response.pose.position.y, getmodelstate.response.pose.position.z);
+    if(angle > 120){
+        numberOfFalls = numberOfFalls + 1;
+        printf("Dyret has fallen\n\n");
+    }
 
-    printf("\nOrientation\n");
-    printf("%.6f\n", getmodelstate.response.pose.orientation.x);
-    printf("%.6f\n", getmodelstate.response.pose.orientation.y);
-    printf("%.6f\n", getmodelstate.response.pose.orientation.z);
-    printf("%.6f\n", getmodelstate.response.pose.orientation.w);
+    return numberOfFalls;
+}
+std::vector<float> getAngle(ros::NodeHandle n, std::vector<float> totalAngle){
+    ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    gazebo_msgs::GetModelState getmodelstate;
+    getmodelstate.request.model_name ="dyret";
+    gms_c.call(getmodelstate);
 
-    analyseOrientation(getmodelstate.response.pose.orientation.x, getmodelstate.response.pose.orientation.y, getmodelstate.response.pose.orientation.z, getmodelstate.response.pose.orientation.w);
+    float x = getmodelstate.response.pose.position.x;
+    float y = getmodelstate.response.pose.position.y;
+    float z = getmodelstate.response.pose.position.z;
+
+    float absX = std::abs(x);
+    float angle = atan(absX/y);
+    float pi = 3.14159265359;
+    angle = angle * (180/pi);
+    totalAngle.push_back(angle);
+
+    float dist = sqrt((x*x) + (y*y));
+
+    if(x > 0){
+        printf("\nDyret moved forward %.6f with a degree of %.6f to the right\n", dist, angle);
+    }else{
+        printf("\nDyret moved forward %.6f with a degree of %.6f to the left\n", dist, angle);
+    }
+
+    return totalAngle;
 
 }
+std::vector<float> getDistToGoal(ros::NodeHandle n, std::vector<float> totalDistToGoal){
+
+    ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    gazebo_msgs::GetModelState getmodelstate;
+    getmodelstate.request.model_name ="dyret";
+    gms_c.call(getmodelstate);
+
+    float x = getmodelstate.response.pose.position.x;
+    float y = getmodelstate.response.pose.position.y;
+    float z = getmodelstate.response.pose.position.z;
+
+    float goalDist = 3.0;
+
+    float diffY = goalDist - y;
+    float distToGoal = sqrt((x*x) + (diffY*diffY));
+    totalDistToGoal.push_back(distToGoal);
+    printf("Dyret is %.6f from the goal at its current position\n", distToGoal);
+
+
+    return totalDistToGoal;
+}
+
 void resetSimulation(){
     static std_srvs::Empty empty;
 
@@ -602,6 +611,15 @@ int main(int argc, char **argv){
   resetTrajectoryPos(trajectoryMessage_pub);
   resetGaitRecording(get_gait_evaluation_client);
 
+    std::vector<float> totalDistToGoal;
+    std::vector<float> totalAngle;
+    int numberSim = 20;
+    int numberOfFalls = 0;
+    float totDist = 0;
+    float totAngle = 0;
+    double percentage = 0;
+    float avgAngle = 0;
+    float avgDist = 0;
   int inputChar;
   do {
     printf("1 - Monte Carlo\n"
@@ -612,6 +630,7 @@ int main(int argc, char **argv){
     inputChar = getchar();
     std::cin.ignore(1000,'\n');
 
+
     switch(inputChar){
     case '1':
 
@@ -619,13 +638,10 @@ int main(int argc, char **argv){
 
         //Starter MonteCarlo simulering
         resetSimulation();
-        for(int k = 0; k < 2; k++) {
-            printf("----------Simulering %d starter----------\n", k+1);
-            printf("Robot: Dyret\n");
-            if(k == 0){
-                printf("Gait: Slow\n\n");
-                std::vector<double> individualParameters;
-                individualParameters = { 67.643906,  // stepLength
+        for(int k = 0; k < numberSim; k++) {
+            printf("-----------------Simulering %d starter-----------------\n\n", k+1);
+            std::vector<double> individualParameters;
+            individualParameters = { 67.643906,  // stepLength
                                          61.517610,  // stepHeight
                                          16.663189,  // smoothing
                                          0.650102,  // gaitFrequency
@@ -634,21 +650,21 @@ int main(int argc, char **argv){
                                          0.0,  // wagAmplitude_x
                                          28.169140}; // wagAmplitude_y
 
-                fitnessFunctions.clear();
-                fitnessFunctions.emplace_back("MocapSpeed");
-                fitnessFunctions.emplace_back("Stability");
+            fitnessFunctions.clear();
+            fitnessFunctions.emplace_back("MocapSpeed");
+            fitnessFunctions.emplace_back("Stability");
 
-                std::string fitnessString;
-                std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
-                                                                      gaitControllerStatus_client, trajectoryMessage_pub,
+            std::string fitnessString;
+            std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
+                                                                          gaitControllerStatus_client, trajectoryMessage_pub,
                                                                       get_gait_evaluation_client);
-                printf("Returned fitness (%lu): ", fitnessResult.size());
-                for (int i = 0; i < fitnessResult.size(); i++) {
-                    printf("%.2f ", fitnessResult[i]);
-                }
-                printf("\n");
-            }else if(k == 1){
-                printf("Gait: Fast\n\n");
+            printf("Returned fitness (%lu): ", fitnessResult.size());
+            for (int i = 0; i < fitnessResult.size(); i++) {
+                printf("%.2f ", fitnessResult[i]);
+            }
+            printf("\n");
+        /*}else if(k == 1){
+            printf("Gait: Fast\n\n");
                 std::vector<double> individualParameters;
                 individualParameters = {142.497879,  // stepLength
                                         74.101233,  // stepHeight
@@ -674,15 +690,43 @@ int main(int argc, char **argv){
                 printf("\n");
             }else{
                 printf("Something went wrong\n");
-            }
+            }*/
 
             pauseSimulation();
-            //std::cout << path;
-            collectGazeboData(n);
+
+
+            totalAngle = getAngle(n, totalAngle);
+            totalDistToGoal = getDistToGoal(n, totalDistToGoal);
+            numberOfFalls = checkFall(n, numberOfFalls);
+            printf("------------------------------------------------------------------------\n\n");
             unpauseSimulation();
-            printf("----------Simulering %d ferdig----------\n\n", k+1);
             resetSimulation();
+
         }
+            printf("\n-------------------Simulation summary---------------------\n");
+            printf("Robot: Dyret\n");
+            printf("Gait: Slow\n\n");
+            percentage = (numberOfFalls/numberSim) * 100;
+            printf("Number of falls: %d/%d (%f %)\n", numberOfFalls, numberSim, percentage);
+
+
+            for(int i = 0; i < numberSim; i++){
+                float angle = totalAngle.at(i);
+                totAngle = totAngle + angle;
+            }
+            avgAngle = totAngle/numberSim;
+            printf("Average angle: %.6f degree\n", avgAngle);
+
+
+
+            for(int i = 0; i < numberSim; i++){
+                float dist = totalDistToGoal.at(i);
+                totDist = totDist + dist;
+            }
+            avgDist = totDist/numberSim;
+            printf("Average distance to goal: %.6f m\n", avgDist);
+            printf("----------------------------------------------------");
+
         break;
     case '0':
         printf("\tExiting program\n");
