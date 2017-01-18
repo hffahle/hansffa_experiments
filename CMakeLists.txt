@@ -79,6 +79,15 @@ target_link_libraries(heightmapGen ${OpenCV_LIBS})
 add_dependencies(heightmapGen
   ${catkin_EXPORTED_TARGETS})
 
+add_executable(oneHeightmapGen
+               src/oneHeightmapGen.cpp
+               )
+target_link_libraries(oneHeightmapGen ${OpenCV_LIBS})
+add_dependencies(oneHeightmapGen
+  ${catkin_EXPORTED_TARGETS})
+
+
+
 
              
             

@@ -94,14 +94,17 @@ Mat generateVertTerrain(Mat heightmap, int x, int y, int sectionSize, int pixelV
 }
 
 //Lager horisontale dumper i terrenget
-Mat generateHorzTerrain(Mat heightmap, int x, int y, int sectionSize, int pixelValue)
+Mat generateHorzTerrain(Mat heightmap, int x, int y, int pixelValue)
 {
     //Setter verdiene til pixelValue til hver fjerde pixelrad i bildet
-     for(int i = x; i < ((x + sectionSize) - 5); i = i+4){
-        for(int j = y; j < (heightmap.rows - 200); j++){
+    for(int i = x; i <  (heightmap.cols - 7); i = i+8){
+        for(int j = y; j < (heightmap.rows - 7); j++){
             heightmap.at<Vec3b>(i, j)[0] = pixelValue;
             heightmap.at<Vec3b>(i, j)[1] = pixelValue;
             heightmap.at<Vec3b>(i, j)[2] = pixelValue;
+            heightmap.at<Vec3b>(i+1, j)[0] = pixelValue;
+            heightmap.at<Vec3b>(i+1, j)[1] = pixelValue;
+            heightmap.at<Vec3b>(i+1, j)[2] = pixelValue;
         }
     }
     return heightmap;
@@ -111,25 +114,15 @@ Mat smoothImg(Mat heightmap)
 {
     Mat smoothMap;
 
-    GaussianBlur(heightmap, smoothMap, Size(5, 5), 0, 0);
+    GaussianBlur(heightmap, smoothMap, Size(7, 7), 0, 0);
 
     return smoothMap;
 }
 
 int main()
 {
-    //Lager en liste med de ulike methodene
-    vector<int> methods;
-    for(int i = 1; i < 6; i++){
-        methods.push_back(i);
-    }
-
-    //Stokker om på metodene i vektoren
-    srand(time(NULL));
-    random_shuffle(methods.begin(), methods.end());
-
     //Lager et bilde i en størrelse som Gazebo forstår med spesifikasjoner for bilde.
-    Mat flatHeightmap(513, 513, CV_8UC3, Scalar(0, 0, 0));
+    Mat flatHeightmap(1025, 1025, CV_8UC3, Scalar(0, 0, 0));
 
     for(int i = 0; i < flatHeightmap.cols; i++){
         for(int j = 0; j < flatHeightmap.rows; j++){
@@ -139,33 +132,31 @@ int main()
         }
     }
     
-    int sectionSize = 101;
     int startPointX = 5;
-    int startPointY = 200;
-    int pixelValue = 120;
+    int startPointY = 5;
+    int pixelValue = 75;
     Mat tmpHeightmap;
-    for(int i = 0; i < methods.size(); i++){
+    for(int i = 1; i < 6; i++){
         
-        if(methods.at(i) == 1){
-            tmpHeightmap = generateHorzVertTerrain(flatHeightmap, startPointX, startPointY, sectionSize);
+        /*if(i == 1){
+            tmpHeightmap = generateHorzVertTerrain(flatHeightmap, startPointX, startPointY);
             cout << "Metode: " << methods.at(i) << " - Ferdig " << endl;
-        }else if(methods.at(i) == 2){
-            tmpHeightmap = generateHorzTerrain(flatHeightmap, startPointX, startPointY, sectionSize, pixelValue);
+        }else*/ if(i == 2){
+            tmpHeightmap = generateHorzTerrain(flatHeightmap, startPointX, startPointY, pixelValue);
+            cout << "Metode: 2 - Ferdig " << endl;
+            /*}else if(i == 3){
+            tmpHeightmap = generateVertTerrain(flatHeightmap, startPointX, startPointY,  pixelValue);
             cout << "Metode: " << methods.at(i) << " - Ferdig " << endl;
-        }else if(methods.at(i) == 3){
-            tmpHeightmap = generateVertTerrain(flatHeightmap, startPointX, startPointY, sectionSize, pixelValue);
+        }else if(i == 4){
+            tmpHeightmap = generateRandomBumps(flatHeightmap, startPointX, startPointY);
             cout << "Metode: " << methods.at(i) << " - Ferdig " << endl;
-        }else if(methods.at(i) == 4){
-            tmpHeightmap = generateRandomBumps(flatHeightmap, startPointX, startPointY, sectionSize);
-            cout << "Metode: " << methods.at(i) << " - Ferdig " << endl;
-        }else if(methods.at(i) == 5){
-            tmpHeightmap = generateRandomTerrain(flatHeightmap, startPointX, startPointY, sectionSize, pixelValue);
-            cout << "Metode: " << methods.at(i) << " - Ferdig " << endl;
+        }else if(i == 5){
+            tmpHeightmap = generateRandomTerrain(flatHeightmap, startPointX, startPointY, pixelValue);
+            cout << "Metode: " << methods.at(i) << " - Ferdig " << endl;*/
         }else{
-        cout << "Something went wrong" << endl;
+            cout << "Something went wrong" << endl;
         }
 
-        startPointX = startPointX + sectionSize;
     }
 
     Mat heightmap = smoothImg(tmpHeightmap);

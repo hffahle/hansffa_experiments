@@ -641,8 +641,8 @@ int main(int argc, char **argv){
         for(int k = 0; k < numberSim; k++) {
             printf("-----------------Simulering %d starter-----------------\n\n", k+1);
             std::vector<double> individualParameters;
-            individualParameters = { 67.643906,  // stepLength
-                                         61.517610,  // stepHeight
+            individualParameters = { 70.643906,  // stepLength
+                                         75.517610,  // stepHeight
                                          16.663189,  // smoothing
                                          0.650102,  // gaitFrequency
                                          NAN,  // speed
