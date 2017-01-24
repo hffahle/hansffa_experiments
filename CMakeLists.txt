@@ -57,7 +57,7 @@ include_directories(include
 
 add_executable(exp1Gui
                src/exp1Gui.cpp
-              )
+        )
 target_link_libraries(exp1Gui ${catkin_LIBRARIES})
 target_link_libraries(exp1Gui ${Boost_LIBRARIES})
 target_link_libraries(exp1Gui ${TBB_LIBRARIES})
@@ -79,12 +79,13 @@ target_link_libraries(heightmapGen ${OpenCV_LIBS})
 add_dependencies(heightmapGen
   ${catkin_EXPORTED_TARGETS})
 
-add_executable(oneHeightmapGen
-               src/oneHeightmapGen.cpp
+add_executable(meshGen
+               src/meshGen.cpp
                )
-target_link_libraries(oneHeightmapGen ${OpenCV_LIBS})
-add_dependencies(oneHeightmapGen
+target_link_libraries(meshGen ${OpenCV_LIBS})
+add_dependencies(meshGen
   ${catkin_EXPORTED_TARGETS})
+
 
 
 

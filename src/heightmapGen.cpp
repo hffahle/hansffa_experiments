@@ -14,19 +14,19 @@ Mat generateHorzVertTerrain(Mat heightmap, int x, int y, int sectionSize)
     int pixelValue = 105;
     //Setter verdiene til 255 til hver fjerde pixelkolonne i bildet
     for(int i = x; i < ((x + sectionSize) - 5); i++){
-        for(int j = y; j < (heightmap.rows - 200); j = j+4){
-            heightmap.at<Vec3b>(i, j)[0] = pixelValue;
-            heightmap.at<Vec3b>(i, j)[1] = pixelValue;
-            heightmap.at<Vec3b>(i, j)[2] = pixelValue;
+        for(int j = y; j < (heightmap.rows - 150); j = j+4){
+            heightmap.at<Vec3b>(i, j)[0] = pixelValue - 15;
+            heightmap.at<Vec3b>(i, j)[1] = pixelValue - 15;
+            heightmap.at<Vec3b>(i, j)[2] = pixelValue - 15;
         }
     }
 
     //Setter verdiene til 255 til hver fjerde pixelrad i bildet
     for(int i = x; i < ((x + sectionSize) - 5); i = i+4){
-        for(int j = y; j < (heightmap.rows - 200); j++){
-            heightmap.at<Vec3b>(i, j)[0] = pixelValue;
-            heightmap.at<Vec3b>(i, j)[1] = pixelValue;
-            heightmap.at<Vec3b>(i, j)[2] = pixelValue;
+        for(int j = y; j < (heightmap.rows - 150); j++){
+            heightmap.at<Vec3b>(i, j)[0] = pixelValue - 15;
+            heightmap.at<Vec3b>(i, j)[1] = pixelValue - 15;
+            heightmap.at<Vec3b>(i, j)[2] = pixelValue - 15;
         }
     }
 
@@ -40,8 +40,8 @@ Mat generateRandomTerrain(Mat heightmap, int x, int y, int sectionSize, int pixe
 
     //Setter hvert pixel i bilde til en tilfeldig verdi
     for(int i = x; i < ((x + sectionSize) - 5); i++){
-        for(int j = y; j < (heightmap.cols - 200); j++){
-            int randPixelVal = rand() % pixelValue;
+        for(int j = y; j < (heightmap.cols - 150); j++){
+            int randPixelVal = 50 + rand() % 55;
             heightmap.at<Vec3b>(i,j)[0] = randPixelVal;
             heightmap.at<Vec3b>(i,j)[1] = randPixelVal;
             heightmap.at<Vec3b>(i,j)[2] = randPixelVal;
@@ -54,11 +54,11 @@ Mat generateRandomTerrain(Mat heightmap, int x, int y, int sectionSize, int pixe
 //Lager x antall dumper i terrenget
 Mat generateRandomBumps(Mat heightmap, int x, int y, int sectionSize)
 {
-    int pixelValue = 90;
+    int pixelValue = 85;
     for(int i = 0; i < 250; i++){
         //Genererer et tall mellom 0 og heightmap.at<Vec3b>(i, j)[0] = pixelValue;
         int startPointX = x + (rand() % (((x + sectionSize)-5) - x + 1));
-        int startPointY = y + rand() % (heightmap.rows - 400);
+        int startPointY = y + rand() % (heightmap.rows - 300);
         vector<int> usedpointsX;
         vector<int> usedpointsY;
         if(find(usedpointsX.begin(), usedpointsX.end(), startPointX) == usedpointsX.end() && find(usedpointsY.begin(), usedpointsY.end(), startPointY) == usedpointsY.end()){
@@ -83,7 +83,7 @@ Mat generateVertTerrain(Mat heightmap, int x, int y, int sectionSize, int pixelV
 {
     //Setter verdiene til pixelValue til hver fjerde pixelkolonne i bildet
     for(int i = x; i < ((x + sectionSize) - 5); i++){
-        for(int j = y; j < (heightmap.rows - 200); j = j+4){
+        for(int j = y; j < (heightmap.rows - 150); j = j+4){
             heightmap.at<Vec3b>(i, j)[0] = pixelValue;
             heightmap.at<Vec3b>(i, j)[1] = pixelValue;
             heightmap.at<Vec3b>(i, j)[2] = pixelValue;
@@ -98,7 +98,7 @@ Mat generateHorzTerrain(Mat heightmap, int x, int y, int sectionSize, int pixelV
 {
     //Setter verdiene til pixelValue til hver fjerde pixelrad i bildet
      for(int i = x; i < ((x + sectionSize) - 5); i = i+4){
-        for(int j = y; j < (heightmap.rows - 200); j++){
+        for(int j = y; j < (heightmap.rows - 150); j++){
             heightmap.at<Vec3b>(i, j)[0] = pixelValue;
             heightmap.at<Vec3b>(i, j)[1] = pixelValue;
             heightmap.at<Vec3b>(i, j)[2] = pixelValue;
@@ -141,8 +141,8 @@ int main()
     
     int sectionSize = 101;
     int startPointX = 5;
-    int startPointY = 200;
-    int pixelValue = 120;
+    int startPointY = 150;
+    int pixelValue = 90;
     Mat tmpHeightmap;
     for(int i = 0; i < methods.size(); i++){
         
@@ -173,7 +173,7 @@ int main()
     vector<int> compression_params;
     compression_params.push_back(16);
     compression_params.push_back(9);
-    imwrite("/home/hansffa/.gazebo/models/heightmap/materials/textures/heightmap_test.png", heightmap, compression_params);
+    imwrite("/home/hansffa/Documents/Blender/blender_terrain.png", heightmap, compression_params);
     
     imshow("heightmap", heightmap);
     waitKey(0);

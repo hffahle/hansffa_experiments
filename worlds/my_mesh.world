@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+  <world name="default">
+    <physics type="ode">
+          <gravity>0 0 -9.81</gravity>
+          <max_step_size>0.001</max_step_size>
+          <real_time_update_rate>1000</real_time_update_rate>
+          <ode>
+            <solver>
+              <type>quick</type>
+              <iters>100</iters>
+            </solver>
+          </ode>
+        </physics>
+        <include>
+          <uri>model://sun</uri>
+        </include>
+        <include>
+          <uri>model://dyret_autogen</uri>
+        </include>
+    <model name="my_mesh">
+      <pose>0 1.8 0  0 0 0</pose>
+      <static>true</static>
+      <link name="body">
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://terrain/meshes/course.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+        <visual name="visual">
+          <geometry>
+            <mesh>
+                <uri>model://terrain/meshes/course.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

@@ -1,0 +1,13 @@
+<launch>
+
+<include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find hansffa_experiments)/worlds/my_mesh.world"/>
+  </include>
+
+ <!--<node pkg="hansffa_experiments" name="hardwareTest" type="simWorld" />-->
+
+  <node pkg="dyret_controller" name="gaitController" type="gaitController" />
+  <node pkg="dyret_controller" name="trajectoryController" type="trajectoryController" />
+  <node pkg="dyret_controller" name="inverseKinematicsService" type="inverseKinematicsService" />
+
+</launch>
