@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-#include <iostream>
 #include <algorithm>
+#include <string>
+#include <sstream>
 
 #include <errno.h>
 #include "ros/ros.h"
@@ -16,7 +17,6 @@
 #include "gazebo_msgs/GetModelState.h"
 #include <math.h>
 
-#include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <ctime>
@@ -76,6 +76,50 @@ FILE* getEvoPathFileHandle(std::string fileName){
   return handleToReturn;
 }
 
+std::vector<float> getStartPoint(ros::NodeHandle n, std::vector<float> startPoint){
+    ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+    gazebo_msgs::GetModelState getmodelstate;
+    getmodelstate.request.model_name ="dyret";
+    gms_c.call(getmodelstate);
+
+    float x = getmodelstate.response.pose.position.x;
+    float y = getmodelstate.response.pose.position.y;
+
+    startPoint.push_back(x);
+    startPoint.push_back(y);
+
+    return startPoint;
+}
+
+std::string getTerrain(){
+
+    printf("\nChoose terrain type: \n");
+    printf("1 - Horizontal terrain\n");
+    printf("2 - Vertical terrain\n");
+    printf("3 - Horizantal and vertical terrain\n");
+    printf("4 - Bumpy terrain\n");
+    printf("5 - Random terrain\n> ");
+
+
+    int inputChar = getchar();
+    std::cin.ignore(1000,'\n');
+
+
+    if(inputChar == '1'){
+        return "Horizontal";
+    }else if(inputChar == '2'){
+        return "Vertical";
+    }else if(inputChar == '3'){
+        return "Horizantal and vertical";
+    }else if(inputChar == '4'){
+        return "Bumpy";
+    }else if(inputChar == '5'){
+        return "Random";
+    }else{
+        return "No terrain chosen";
+    }
+}
+
 
 int checkFall(ros::NodeHandle n, int numberOfFalls){
 
@@ -127,15 +171,15 @@ std::vector<float> getAngle(ros::NodeHandle n, std::vector<float> totalAngle){
     return totalAngle;
 
 }
-std::vector<float> getDistToGoal(ros::NodeHandle n, std::vector<float> totalDistToGoal){
+std::vector<float> getDistToGoal(ros::NodeHandle n, std::vector<float> totalDistToGoal, float startX, float startY){
 
     ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
     gazebo_msgs::GetModelState getmodelstate;
     getmodelstate.request.model_name ="dyret";
     gms_c.call(getmodelstate);
 
-    float x = getmodelstate.response.pose.position.x;
-    float y = getmodelstate.response.pose.position.y;
+    float x = getmodelstate.response.pose.position.x - startX;
+    float y = getmodelstate.response.pose.position.y - startY;
     float z = getmodelstate.response.pose.position.z;
 
     float goalDist = 3.0;
@@ -339,8 +383,8 @@ std::vector<float> evaluateIndividual(std::vector<double> parameters, std::strin
   std::vector<float> trajectoryAngles(1);
   std::vector<float> trajectoryDistances(1);
   std::vector<int>   trajectoryTimeouts(1);
-  trajectoryDistances[0] = 2000.0;
-  trajectoryTimeouts[0] = 30.0; // 10 sec timeout
+  trajectoryDistances[0] = 1000;
+  trajectoryTimeouts[0] = 15.0; // 30 sec timeout
 
   resetTrajectoryPos(trajectoryMessage_pub); // Reset position before starting
   resetGaitRecording(get_gait_evaluation_client);
@@ -613,14 +657,16 @@ int main(int argc, char **argv){
 
     std::vector<float> totalDistToGoal;
     std::vector<float> totalAngle;
-    int numberSim = 20;
+    int numberSim = 1;
     int numberOfFalls = 0;
     float totDist = 0;
     float totAngle = 0;
     double percentage = 0;
     float avgAngle = 0;
     float avgDist = 0;
-  int inputChar;
+    std::string terrain;
+    std::vector<float> startPoint;
+    int inputChar;
   do {
     printf("1 - Monte Carlo\n"
            "0 - Exit\n> ");
@@ -638,95 +684,113 @@ int main(int argc, char **argv){
 
         //Starter MonteCarlo simulering
         resetSimulation();
-        for(int k = 0; k < numberSim; k++) {
-            printf("-----------------Simulering %d starter-----------------\n\n", k+1);
-            std::vector<double> individualParameters;
-            individualParameters = { 70.643906,  // stepLength
-                                         75.517610,  // stepHeight
-                                         16.663189,  // smoothing
-                                         0.650102,  // gaitFrequency
-                                         NAN,  // speed
-                                         0.102479,  // wagPhase -0.2 -> 0.2
-                                         0.0,  // wagAmplitude_x
-                                         28.169140}; // wagAmplitude_y
 
-            fitnessFunctions.clear();
-            fitnessFunctions.emplace_back("MocapSpeed");
-            fitnessFunctions.emplace_back("Stability");
+        //Get the type of terrain used in the simulation
+          terrain = getTerrain();
 
-            std::string fitnessString;
-            std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
-                                                                          gaitControllerStatus_client, trajectoryMessage_pub,
-                                                                      get_gait_evaluation_client);
-            printf("Returned fitness (%lu): ", fitnessResult.size());
-            for (int i = 0; i < fitnessResult.size(); i++) {
-                printf("%.2f ", fitnessResult[i]);
-            }
-            printf("\n");
-        /*}else if(k == 1){
-            printf("Gait: Fast\n\n");
-                std::vector<double> individualParameters;
-                individualParameters = {142.497879,  // stepLength
-                                        74.101233,  // stepHeight
-                                        40.617961,  // smoothing
-                                        1.176102,  // gaitFrequency
+
+        for(int t = 1; t < 3; t++) {
+            for (int k = 0; k < numberSim; k++) {
+
+                startPoint = getStartPoint(n, startPoint);
+                float startX = startPoint.at(0);
+                float startY = startPoint.at(1);
+
+                if(t == 1){
+                    printf("-----------------Simulering %d starter-----------------\n\n", k + 1);
+                    std::vector<double> individualParameters;
+                    individualParameters = {70.643906,  // stepLength
+                                        75.517610,  // stepHeight
+                                        16.663189,  // smoothing
+                                        0.650102,  // gaitFrequency
                                         NAN,  // speed
-                                        0.187434,  // wagPhase -0.2 -> 0.2
-                                        34.262195,  // wagAmplitude_x
-                                        33.369043}; // wagAmplitude_y
+                                        0.102479,  // wagPhase -0.2 -> 0.2
+                                        0.0,  // wagAmplitude_x
+                                        28.169140}; // wagAmplitude_y
 
-                fitnessFunctions.clear();
-                fitnessFunctions.emplace_back("MocapSpeed");
-                fitnessFunctions.emplace_back("Stability");
+                    fitnessFunctions.clear();
+                    fitnessFunctions.emplace_back("MocapSpeed");
+                    fitnessFunctions.emplace_back("Stability");
 
-                std::string fitnessString;
-                std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
-                                                                      gaitControllerStatus_client, trajectoryMessage_pub,
-                                                                      get_gait_evaluation_client);
-                printf("Returned fitness (%lu): ", fitnessResult.size());
+                    std::string fitnessString;
+                    std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
+                                                                          gaitControllerStatus_client,
+                                                                          trajectoryMessage_pub,
+                                                                          get_gait_evaluation_client);
+                    printf("Returned fitness (%lu): ", fitnessResult.size());
                 for (int i = 0; i < fitnessResult.size(); i++) {
                     printf("%.2f ", fitnessResult[i]);
                 }
                 printf("\n");
-            }else{
-                printf("Something went wrong\n");
-            }*/
+                }else if(t == 2){
+                    printf("------------------------Simulering %d starter-----------------------\n\n", k + 1);
+                    std::vector<double> individualParameters;
+                    individualParameters = {142.497879,  // stepLength
+                                            74.101233,  // stepHeight
+                                            40.617961,  // smoothing
+                                            1.176102,  // gaitFrequency
+                                            NAN,  // speed
+                                            0.187434,  // wagPhase -0.2 -> 0.2
+                                            34.262195,  // wagAmplitude_x
+                                            33.369043}; // wagAmplitude_y
 
-            pauseSimulation();
+                    fitnessFunctions.clear();
+                    fitnessFunctions.emplace_back("MocapSpeed");
+                    fitnessFunctions.emplace_back("Stability");
 
+                    std::string fitnessString;
+                    std::vector<float> fitnessResult = evaluateIndividual(individualParameters, &fitnessString, false,
+                                                                          gaitControllerStatus_client, trajectoryMessage_pub,
+                                                                          get_gait_evaluation_client);
+                    printf("Returned fitness (%lu): ", fitnessResult.size());
+                    for (int i = 0; i < fitnessResult.size(); i++) {
+                        printf("%.2f ", fitnessResult[i]);
+                    }
+                    printf("\n");
+                }else{
+                    printf("Something went wrong\n\n");
+                }
 
-            totalAngle = getAngle(n, totalAngle);
-            totalDistToGoal = getDistToGoal(n, totalDistToGoal);
-            numberOfFalls = checkFall(n, numberOfFalls);
-            printf("------------------------------------------------------------------------\n\n");
-            unpauseSimulation();
-            resetSimulation();
+                pauseSimulation();
 
-        }
-            printf("\n-------------------Simulation summary---------------------\n");
+                totalAngle = getAngle(n, totalAngle);
+                totalDistToGoal = getDistToGoal(n, totalDistToGoal, startX, startY);
+                numberOfFalls = checkFall(n, numberOfFalls);
+                printf("------------------------------------------------------------------------\n\n");
+                unpauseSimulation();
+                resetSimulation();
+
+            }
+            printf("\n--------------------------Simulation summary------------------------------\n");
             printf("Robot: Dyret\n");
-            printf("Gait: Slow\n\n");
-            percentage = (numberOfFalls/numberSim) * 100;
-            printf("Number of falls: %d/%d (%f %)\n", numberOfFalls, numberSim, percentage);
+            std::cout << "Terrain: " << terrain;
+            if(t == 1) {
+                printf("\nGait: Slow\n\n");
+            }else if(t == 2){
+                printf("\nGait: Fast\n\n");
+            }else{
+                printf("Something went wrong\n\n");
+            }
+            percentage = (numberOfFalls / numberSim) * 100;
+            printf("Number of falls: %d/%d (%f)\n", numberOfFalls, numberSim, percentage);
 
 
-            for(int i = 0; i < numberSim; i++){
+            for (int i = 0; i < numberSim; i++) {
                 float angle = totalAngle.at(i);
                 totAngle = totAngle + angle;
             }
-            avgAngle = totAngle/numberSim;
+            avgAngle = totAngle / numberSim;
             printf("Average angle: %.6f degree\n", avgAngle);
 
 
-
-            for(int i = 0; i < numberSim; i++){
+            for (int i = 0; i < numberSim; i++) {
                 float dist = totalDistToGoal.at(i);
                 totDist = totDist + dist;
             }
-            avgDist = totDist/numberSim;
+            avgDist = totDist / numberSim;
             printf("Average distance to goal: %.6f m\n", avgDist);
-            printf("----------------------------------------------------");
-
+            printf("----------------------------------------------------------------------------\n\n");
+        }
         break;
     case '0':
         printf("\tExiting program\n");
