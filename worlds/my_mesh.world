@@ -25,14 +25,14 @@
       <collision name="collision">
         <geometry>
           <mesh>
-            <uri>model://terrain/meshes/course.dae</uri>
+            <uri>model://terrain/meshes/circle_terrain.dae</uri>
           </mesh>
         </geometry>
       </collision>
         <visual name="visual">
           <geometry>
             <mesh>
-                <uri>model://terrain/meshes/course.dae</uri>
+                <uri>model://terrain/meshes/circle_terrain.dae</uri>
             </mesh>
           </geometry>
         </visual>

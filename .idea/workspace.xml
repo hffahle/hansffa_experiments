@@ -10,7 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fccd861c-79a2-4e2f-a232-0bca040fdbad" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/exp1Gui.cpp" afterPath="$PROJECT_DIR$/src/exp1Gui.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/meshGen.cpp" afterPath="$PROJECT_DIR$/src/meshGen.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/worlds/my_mesh.world" afterPath="$PROJECT_DIR$/worlds/my_mesh.world" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -28,21 +31,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="vertWorld.launch" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/launch/vertWorld.launch">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="bump_mesh.world" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/worlds/bump_mesh.world">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="432">
-              <caret line="24" column="34" lean-forward="true" selection-start-line="24" selection-start-column="34" selection-end-line="24" selection-end-column="34" />
+              <caret line="24" column="34" lean-forward="false" selection-start-line="24" selection-start-column="34" selection-end-line="24" selection-end-column="34" />
               <folding />
             </state>
           </provider>
@@ -51,11 +44,31 @@
       <file leaf-file-name="exp1Gui.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/exp1Gui.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-6789">
-              <caret line="386" column="30" lean-forward="false" selection-start-line="386" selection-start-column="30" selection-end-line="386" selection-end-column="30" />
+            <state relative-caret-position="638">
+              <caret line="107" column="45" lean-forward="true" selection-start-line="107" selection-start-column="45" selection-end-line="107" selection-end-column="45" />
               <folding>
-                <element signature="e#16125#16141#0" expanded="true" />
+                <element signature="e#18898#18914#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="meshGen.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/meshGen.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2196">
+              <caret line="122" column="26" lean-forward="false" selection-start-line="122" selection-start-column="26" selection-end-line="122" selection-end-column="26" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="meshWorld.launch" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/launch/meshWorld.launch">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="216">
+              <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="9" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -93,8 +106,8 @@
       <file leaf-file-name="my_mesh.world" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/worlds/my_mesh.world">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="630">
-              <caret line="35" column="19" lean-forward="false" selection-start-line="35" selection-start-column="19" selection-end-line="35" selection-end-column="19" />
+            <state relative-caret-position="486">
+              <caret line="27" column="54" lean-forward="false" selection-start-line="27" selection-start-column="54" selection-end-line="27" selection-end-column="54" />
               <folding />
             </state>
           </provider>
@@ -102,16 +115,6 @@
       </file>
       <file leaf-file-name="random_mesh.world" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/worlds/random_mesh.world">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="21" column="15" lean-forward="false" selection-start-line="21" selection-start-column="15" selection-end-line="21" selection-end-column="15" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="vert_mesh.world" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/worlds/vert_mesh.world">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="378">
               <caret line="21" column="15" lean-forward="false" selection-start-line="21" selection-start-column="15" selection-end-line="21" selection-end-column="15" />
@@ -151,6 +154,9 @@
       <find>mm</find>
       <find>distance</find>
       <find>trajectorydi</find>
+      <find>trajectory</find>
+      <find>lengt</find>
+      <find>timeout</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -164,13 +170,13 @@
         <option value="$PROJECT_DIR$/launch/meshWorld.launch" />
         <option value="$PROJECT_DIR$/src/heightmapGen.cpp" />
         <option value="$PROJECT_DIR$/src/meshGen.cpp.cpp" />
-        <option value="$PROJECT_DIR$/src/meshGen.cpp" />
-        <option value="$PROJECT_DIR$/worlds/my_mesh.world" />
         <option value="$PROJECT_DIR$/worlds/vert_mesh.world" />
         <option value="$PROJECT_DIR$/worlds/random_mesh.world" />
         <option value="$PROJECT_DIR$/worlds/horzVert_mesh.world" />
         <option value="$PROJECT_DIR$/worlds/horz_mesh.world" />
         <option value="$PROJECT_DIR$/worlds/bump_mesh.world" />
+        <option value="$PROJECT_DIR$/src/meshGen.cpp" />
+        <option value="$PROJECT_DIR$/worlds/my_mesh.world" />
         <option value="$PROJECT_DIR$/src/exp1Gui.cpp" />
       </list>
     </option>
@@ -456,12 +462,14 @@
       <workItem from="1484744962105" duration="5249000" />
       <workItem from="1484900632755" duration="4119000" />
       <workItem from="1485157030624" duration="17315000" />
-      <workItem from="1485246486098" duration="12061000" />
+      <workItem from="1485246486098" duration="12210000" />
+      <workItem from="1486375703721" duration="14121000" />
+      <workItem from="1487067580395" duration="21442000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="123856000" />
+    <option name="totallyTimeSpent" value="159568000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="24" width="1920" height="1176" extended-state="6" />
@@ -510,7 +518,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#16125#16141#0" expanded="true" />
+            <element signature="e#18898#18914#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -526,7 +534,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
           <caret line="6" column="2" lean-forward="false" selection-start-line="6" selection-start-column="2" selection-end-line="6" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -551,7 +558,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#16125#16141#0" expanded="true" />
+            <element signature="e#18898#18914#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -567,7 +574,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
           <caret line="6" column="2" lean-forward="false" selection-start-line="6" selection-start-column="2" selection-end-line="6" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -592,7 +598,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#16125#16141#0" expanded="true" />
+            <element signature="e#18898#18914#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -608,7 +614,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
           <caret line="6" column="2" lean-forward="false" selection-start-line="6" selection-start-column="2" selection-end-line="6" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -633,7 +638,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#16125#16141#0" expanded="true" />
+            <element signature="e#18898#18914#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -649,7 +654,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
           <caret line="6" column="2" lean-forward="true" selection-start-line="6" selection-start-column="2" selection-end-line="6" selection-end-column="2" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -674,7 +678,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#16125#16141#0" expanded="true" />
+            <element signature="e#18898#18914#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -690,7 +694,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -715,7 +718,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#16125#16141#0" expanded="true" />
+            <element signature="e#18898#18914#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -733,7 +736,7 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#16125#16141#0" expanded="true" />
+            <element signature="e#18898#18914#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -751,20 +754,13 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#16125#16141#0" expanded="true" />
+            <element signature="e#18898#18914#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/oneHeightmapGen.cpp" />
     <entry file="file://$PROJECT_DIR$/src/meshGen.cpp.cpp" />
-    <entry file="file://$PROJECT_DIR$/src/meshGen.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="42" column="69" lean-forward="true" selection-start-line="42" selection-start-column="69" selection-end-line="42" selection-end-column="69" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/launch/bumpWorld.launch">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -793,18 +789,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/launch/meshWorld.launch">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/launch/randomWorld.launch">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -812,7 +800,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
           <caret line="10" column="97" lean-forward="false" selection-start-line="6" selection-start-column="1" selection-end-line="10" selection-end-column="97" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -820,7 +807,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -828,7 +814,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
           <caret line="21" column="15" lean-forward="false" selection-start-line="21" selection-start-column="15" selection-end-line="21" selection-end-column="15" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -851,7 +836,7 @@
     <entry file="file://$PROJECT_DIR$/worlds/bump_mesh.world">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
-          <caret line="24" column="34" lean-forward="true" selection-start-line="24" selection-start-column="34" selection-end-line="24" selection-end-column="34" />
+          <caret line="24" column="34" lean-forward="false" selection-start-line="24" selection-start-column="34" selection-end-line="24" selection-end-column="34" />
           <folding />
         </state>
       </provider>
@@ -872,14 +857,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/worlds/my_mesh.world">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="35" column="19" lean-forward="false" selection-start-line="35" selection-start-column="19" selection-end-line="35" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/heightmapGen.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2178">
@@ -888,12 +865,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/meshGen.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2196">
+          <caret line="122" column="26" lean-forward="false" selection-start-line="122" selection-start-column="26" selection-end-line="122" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/launch/meshWorld.launch">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/worlds/my_mesh.world">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="486">
+          <caret line="27" column="54" lean-forward="false" selection-start-line="27" selection-start-column="54" selection-end-line="27" selection-end-column="54" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/exp1Gui.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6789">
-          <caret line="386" column="30" lean-forward="false" selection-start-line="386" selection-start-column="30" selection-end-line="386" selection-end-column="30" />
+        <state relative-caret-position="638">
+          <caret line="107" column="45" lean-forward="true" selection-start-line="107" selection-start-column="45" selection-end-line="107" selection-end-column="45" />
           <folding>
-            <element signature="e#16125#16141#0" expanded="true" />
+            <element signature="e#18898#18914#0" expanded="true" />
           </folding>
         </state>
       </provider>

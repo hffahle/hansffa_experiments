@@ -118,15 +118,15 @@ Mat smoothImg(Mat heightmap)
 int main()
 {
     //Lager et bilde i en størrelse som Gazebo forstår med spesifikasjoner for bilde.
-    Mat flatHeightmap(500, 500, CV_8UC3, Scalar(0, 0, 0));
+    Mat flatHeightmap(800, 800, CV_8UC3, Scalar(0, 0, 0));
 
-    int sectionSize = 450;
-    int startPointX = 25;
-    int startPointY = 25;
+    int sectionSize = 780;
+    int startPointX = 10;
+    int startPointY = 10;
     int pixelValue = 90;
     Mat tmpHeightmap;
 
-    for(int i = 1; i < 6; i++){
+    for(int i = 5; i < 6; i++){
 
         for(int i = 0; i < flatHeightmap.cols; i++){
             for(int j = 0; j < flatHeightmap.rows; j++){
