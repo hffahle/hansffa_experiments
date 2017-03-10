@@ -17,6 +17,8 @@
 #include "gazebo_msgs/GetModelState.h"
 #include <math.h>
 #include <time.h>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 #include <fstream>
 #include <iomanip>
@@ -77,196 +79,140 @@ FILE* getEvoPathFileHandle(std::string fileName){
     return handleToReturn;
 }
 
-std::string makeFile(std::string file, std::string terrain){
+std::string findBestGait(std::vector<std::vector<float>> data, std::vector<std::string> gaits){
+    std::vector<float> bestData = data.at(0);
+    std::vector<float> testData;
+    std::string bestGait = gaits.at(0);
 
-    time_t now = time(0);
-    tm *ltm = localtime(&now);
+    for(int i = 1; i < data.size(); i++){
+        testData = data.at(i);
+        //Testing the fall percentage
+        if(testData.at(0) < bestData.at(0)){
+            bestData = testData;
+            bestGait = gaits.at(i);
+        //Testing how accurate the gait is compare to speed
+        }else if(testData.at(0) == bestData.at(0) &&
+                (testData.at(1) - 5) < bestData.at(1) &&
+                (std::abs(testData.at(3)) - 0.1) < std::abs(bestData.at(3)) &&
+                 testData.at(4) < bestData.at(4) &&
+                 testData.at(5) > bestData.at(5)){
 
-    std::string y = std::to_string(1900 + ltm->tm_year);
-    std::string m = std::to_string(1 + ltm->tm_mon);
-    std::string d = std::to_string(ltm->tm_mday);
-    std::string h = std::to_string(ltm->tm_hour);
-    std::string hm = std::to_string(ltm->tm_min);
+            bestData = testData;
+            bestGait = gaits.at(i);
 
-    file.append("MC_");
-    file.append(terrain);
-    file.append("_");
-    file.append(d);
-    file.append("-");
-    file.append(m);
-    file.append("-");
-    file.append(y);
-    file.append("_");
-    file.append(h);
-    file.append("-");
-    file.append(hm);
-    file.append(".txt");
-
-    return file;
-}
-
-std::string openResFile(std::string terrain){
-
-    std::string file = "/home/hansffa/Documents/Masteroppgave/Resultater/";
-    file = makeFile(file, terrain);
-
-    std::ofstream ofs;
-    ofs.open (file, std::ofstream::out | std::ofstream::app);
-
-    ofs << "robot: Dyret\n";
-    ofs << "terrain: " << terrain << "\n\n";
-
-    ofs.close();
-
-    return file;
-
-}
-
-void writeToFile(double percentage, float avgAngle, float avgDist, float avgDistToGoal, double avgTime, double timePerMeter, int gait, std::string file){
-
-    std::ofstream ofs;
-    ofs.open (file, std::ofstream::out | std::ofstream::app);
-
-    if(gait == 1) {
-        ofs << "gait: MO_speedStability_1_balanced\n";
-    }else if(gait == 2){
-        ofs << "gait: MO_speedStability_1_fast\n";
-    }else if(gait == 3){
-        ofs << "gait: SO_speed_1_fast\n";
-    }else if(gait == 4){
-        ofs << "gait: MO_speedStability_1_stable\n";
-    }else if(gait == 5){
-        ofs << "gait: SO_stability_1_stable\n";
-    }else{
-        ofs << "Something went wrong\n";
+        }
     }
-    ofs << "fall_percentage: " << percentage << "\n";
-    ofs << "avg_angle: " << avgAngle << "\n";
-    ofs << "avg_dist: " << avgDist << "\n";
-    ofs << "avg_goal: " << avgDistToGoal << "\n";
-    ofs << "avg_time: " << avgTime << "\n";
-    ofs << "avg_m_s: " << timePerMeter << "\n\n";
-
-    ofs.close();
+    std::cout << bestGait << "\n" << std::endl;
+    return bestGait;
 
 }
+std::vector<std::vector<float>> readData(std::string fileName, std::vector<std::string> gaits){
 
-std::vector<float> getStartPoint(ros::NodeHandle n, std::vector<float> startPoint){
-    ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    gazebo_msgs::GetModelState getmodelstate;
-    getmodelstate.request.model_name ="dyret";
-    gms_c.call(getmodelstate);
+    using namespace boost::algorithm;
 
-    float x = getmodelstate.response.pose.position.x;
-    float y = getmodelstate.response.pose.position.y;
+    std::vector<std::string> tokens;
 
-    startPoint.push_back(x);
-    startPoint.push_back(y);
+    std::vector<std::vector<float>> data;
+    std::ifstream file(fileName);
+    std::string str;
+    std::vector<float> dataSamples;
+    while (std::getline(file, str))
+    {
+        std::size_t found = str.find(gaits.at(0));
+        if(found!=std::string::npos) {
+            for (int i = 0; i < 6; i++) {
+                std::getline(file, str);
+                split(tokens, str, is_any_of(" ")); // here it is
+                float fData = std::stof(tokens.at(1));
+                dataSamples.push_back(fData);
+                tokens.clear();
+            }
+            data.push_back(dataSamples);
+            dataSamples.clear();
 
-    return startPoint;
-}
+        }
+        found = str.find(gaits.at(1));
+        if(found!=std::string::npos){
 
-std::string getTerrain(){
+            for (int i = 0; i < 6; i++) {
+                std::getline(file, str);
+                split(tokens, str, is_any_of(" ")); // here it is
+                float fData = std::stof(tokens.at(1));
+                dataSamples.push_back(fData);
+                tokens.clear();
+            }
+            data.push_back(dataSamples);
+            dataSamples.clear();
+        }
+        found = str.find(gaits.at(2));
+        if(found!=std::string::npos) {
 
-    printf("\nChoose terrain type: \n");
-    printf("1 - Horizontal terrain\n");
-    printf("2 - Vertical terrain\n");
-    printf("3 - Horizantal and vertical terrain\n");
-    printf("4 - Bumpy terrain\n");
-    printf("5 - Random terrain\n> ");
+            for (int i = 0; i < 6; i++) {
+                std::getline(file, str);
+                split(tokens, str, is_any_of(" ")); // here it is
+                float fData = std::stof(tokens.at(1));
+                dataSamples.push_back(fData);
+                tokens.clear();
+            }
+            data.push_back(dataSamples);
+            dataSamples.clear();
+        }
+        found = str.find(gaits.at(3));
+        if(found!=std::string::npos){
 
+            for (int i = 0; i < 6; i++) {
+                std::getline(file, str);
+                split(tokens, str, is_any_of(" ")); // here it is
+                float fData = std::stof(tokens.at(1));
+                dataSamples.push_back(fData);
+                tokens.clear();
+            }
+            data.push_back(dataSamples);
+            dataSamples.clear();
+        }
+        found = str.find(gaits.at(4));
+        if(found!=std::string::npos){
 
-    int inputChar = getchar();
-    std::cin.ignore(1000,'\n');
-
-
-    if(inputChar == '1'){
-        return "Horizontal";
-    }else if(inputChar == '2'){
-        return "Vertical";
-    }else if(inputChar == '3'){
-        return "Horizantal and vertical";
-    }else if(inputChar == '4'){
-        return "Bumpy";
-    }else if(inputChar == '5'){
-        return "Random";
-    }else{
-        return "No terrain chosen";
-    }
-}
-
-
-int checkFall(ros::NodeHandle n, int numberOfFalls){
-
-    ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    gazebo_msgs::GetModelState getmodelstate;
-    getmodelstate.request.model_name ="dyret";
-    gms_c.call(getmodelstate);
-
-    float qx = getmodelstate.response.pose.orientation.x;
-    float qy= getmodelstate.response.pose.orientation.y;
-    float qz = getmodelstate.response.pose.orientation.z;
-    float qw = getmodelstate.response.pose.orientation.w;
-    float angle = 2 * acos(qw);
-
-    float pi = 3.14159265359;
-    angle = angle * (180/pi);
-
-    if(angle > 120){
-        numberOfFalls = numberOfFalls + 1;
-        printf("Dyret has fallen\n\n");
+            for (int i = 0; i < 6; i++) {
+                std::getline(file, str);
+                split(tokens, str, is_any_of(" ")); // here it is
+                float fData = std::stof(tokens.at(1));
+                dataSamples.push_back(fData);
+                tokens.clear();
+            }
+            data.push_back(dataSamples);
+            dataSamples.clear();
+        }
     }
 
-    return numberOfFalls;
+    /*for(int i = 0; i < 5; i++){
+        std::vector<float> tmp = data.at(i);
+            for(int j = 0; j <6; j++){
+            std::cout << tmp.at(j) << "\n";
+        }
+        printf("\n");
+    }*/
+
+    return data;
 }
-std::vector<float> getAngle(ros::NodeHandle n, std::vector<float> totalAngle, float startX, float startY){
-    ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    gazebo_msgs::GetModelState getmodelstate;
-    getmodelstate.request.model_name ="dyret";
-    gms_c.call(getmodelstate);
 
-    float x = getmodelstate.response.pose.position.x - startX;
-    float y = getmodelstate.response.pose.position.y - startY;
-    float z = getmodelstate.response.pose.position.z;
+std::vector<std::string> getGaits(std::string fileName){
 
-    float absX = std::abs(x);
-    float angle = atan(absX/y);
-    float pi = 3.14159265359;
-    angle = angle * (180/pi);
-    totalAngle.push_back(angle);
-
-    float dist = sqrt((x*x) + (y*y));
-
-    if(x > 0){
-        printf("\nDyret moved forward %.6f with a degree of %.6f to the right\n", dist, angle);
-    }else{
-        printf("\nDyret moved forward %.6f with a degree of %.6f to the left\n", dist, angle);
+    std::vector<std::string> gaits;
+    std::ifstream file(fileName);
+    std::string str;
+    while (std::getline(file, str))
+    {
+        gaits.push_back(str);
     }
 
-    return totalAngle;
-
+    return gaits;
 }
-std::vector<float> getDistToGoal(ros::NodeHandle n, std::vector<float> totalDistToGoal, float startX, float startY){
-
-    ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    gazebo_msgs::GetModelState getmodelstate;
-    getmodelstate.request.model_name ="dyret";
-    gms_c.call(getmodelstate);
-
-    float x = getmodelstate.response.pose.position.x - startX;
-    float y = getmodelstate.response.pose.position.y - startY;
-    float z = getmodelstate.response.pose.position.z;
-
-    float goalDist = 1.5;
-
-    float dist = sqrt((x*x) + (y*y));
-    float distToGoal = goalDist - dist;
-    totalDistToGoal.push_back(distToGoal);
-    printf("Dyret is %.6f from the goal at its current position\n", distToGoal);
 
 
-    return totalDistToGoal;
-}
+
+
+
 
 std::vector<float> getDist(ros::NodeHandle n, std::vector<float> totalDist, float startX, float startY){
 
@@ -317,29 +263,6 @@ double getTime(){
     return secs;
 }
 
-const char* openFile(){
-    const char *path="/home/hansffa/Documents/test_resultater/test_result_";
-    time_t rawtime;
-    struct tm * timeinfo;
-    char buffer[80];
-
-    time (&rawtime);
-    timeinfo = localtime(&rawtime);
-
-    strftime(buffer,80,"%d-%m-%Y",timeinfo);
-    std::string str(buffer);
-
-    std::cout << str;
-    std::string tmpStr = path + str;
-    path = tmpStr.c_str();
-    std::ofstream out;
-    out.open(path, std::ios::out | std::ios::app);
-    out << "Position:" << std::endl;
-    out.close();
-
-    return path;
-
-}
 
 void startGaitRecording(ros::ServiceClient get_gait_evaluation_client){
     dyret_common::GetGaitEvaluation srv;
@@ -751,7 +674,22 @@ int main(int argc, char **argv){
 
     resetTrajectoryPos(trajectoryMessage_pub);
     resetGaitRecording(get_gait_evaluation_client);
-    
+
+    std::vector<std::string> gaits;
+    std::vector<std::vector<float>> horzData;
+    std::vector<std::vector<float>> vertData;
+    std::vector<std::vector<float>> horzVertData;
+    std::vector<std::vector<float>> randData;
+    std::vector<std::vector<float>> bumpData;
+
+    std::string bestHorz = "";
+    std::string bestVert = "";
+    std::string bestHorzVert = "";
+    std::string bestRand = "";
+    std::string bestBump = "";
+
+
+
     int inputChar;
     do {
         printf("1 - Prediction simulation\n"
@@ -765,7 +703,37 @@ int main(int argc, char **argv){
 
         switch(inputChar){
             case '1':
-                print("Start ")
+                gaits = getGaits("/home/hansffa/Documents/Masteroppgave/Resultater/gaits.txt");
+
+                horzData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Horizontal.txt", gaits);
+                vertData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Vertical.txt", gaits);
+                horzVertData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Horz_Vert.txt", gaits);
+                randData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Random.txt", gaits);
+                bumpData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Bump.txt", gaits);
+
+                for(int i = 0; i < 5; i++){
+                    if(i == 0) {
+                        printf("Horizontal\n");
+                        bestHorz = findBestGait(horzData, gaits);
+                    }else if(i == 1){
+                        printf("Vertical\n");
+                        bestVert = findBestGait(vertData, gaits);
+                    }else if(i == 2){
+                        printf("Horizontal and Vertical\n");
+                        bestHorzVert = findBestGait(horzVertData, gaits);
+                    }else if(i == 3){
+                        printf("Random\n");
+                        bestRand = findBestGait(randData, gaits);
+                    }else if(i == 4){
+                        printf("Bump\n");
+                        bestBump = findBestGait(bumpData, gaits);
+                    }else{
+                        printf("Something went wrong");
+                    }
+                }
+
+
+
                 break;
             case '0':
                 printf("\tExiting program\n");

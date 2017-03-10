@@ -65,6 +65,16 @@ target_link_libraries(exp1Gui ${GAZEBO_LIBRARIES})
 add_dependencies(exp1Gui
   ${catkin_EXPORTED_TARGETS})
 
+add_executable(predSim
+               src/predSim.cpp
+        )
+target_link_libraries(predSim ${catkin_LIBRARIES})
+target_link_libraries(predSim ${Boost_LIBRARIES})
+target_link_libraries(predSim ${TBB_LIBRARIES})
+target_link_libraries(predSim ${GAZEBO_LIBRARIES})
+add_dependencies(predSim
+  ${catkin_EXPORTED_TARGETS})
+
 add_executable(hardwareTest
                src/hardwareTest.cpp
               )

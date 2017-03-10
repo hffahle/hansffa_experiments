@@ -118,15 +118,15 @@ Mat smoothImg(Mat heightmap)
 int main()
 {
     //Lager et bilde i en størrelse som Gazebo forstår med spesifikasjoner for bilde.
-    Mat flatHeightmap(800, 800, CV_8UC3, Scalar(0, 0, 0));
+    Mat flatHeightmap(1000, 1000, CV_8UC3, Scalar(0, 0, 0));
 
-    int sectionSize = 780;
+    int sectionSize = 980;
     int startPointX = 10;
     int startPointY = 10;
     int pixelValue = 90;
     Mat tmpHeightmap;
 
-    for(int i = 5; i < 6; i++){
+    for(int i = 1; i < 6; i++){
 
         for(int i = 0; i < flatHeightmap.cols; i++){
             for(int j = 0; j < flatHeightmap.rows; j++){
@@ -144,10 +144,9 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/horzVert_terrain.png", horzVertHeightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/horzVert_terrain.png", horzVertHeightmap, compression_params);
 
             imshow("heightmap1", horzVertHeightmap);
-            waitKey(0);
         }else if(i == 2) {
             tmpHeightmap = generateHorzTerrain(flatHeightmap, startPointX, startPointY, sectionSize, pixelValue);
             cout << "Metode: " << i << " - Ferdig " << endl;
@@ -156,10 +155,9 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/horz_terrain.png", horzHeightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/horz_terrain.png", horzHeightmap, compression_params);
 
             imshow("heightmap2", horzHeightmap);
-            waitKey(0);
         }else if(i == 3){
             tmpHeightmap = generateVertTerrain(flatHeightmap, startPointX, startPointY, sectionSize, pixelValue);
             cout << "Metode: " << i << " - Ferdig " << endl;
@@ -169,10 +167,10 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/vert_terrain.png", vertHeightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/vert_terrain.png", vertHeightmap, compression_params);
 
             imshow("heightmap3", vertHeightmap);
-            waitKey(0);
+
         }else if(i == 4){
             tmpHeightmap = generateRandomBumps(flatHeightmap, startPointX, startPointY, sectionSize);
             cout << "Metode: " << i << " - Ferdig " << endl;
@@ -182,10 +180,10 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/bump_terrain.png", heightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/bump_terrain.png", heightmap, compression_params);
 
             imshow("heightmap4", heightmap);
-            waitKey(0);
+
         }else if(i == 5){
             tmpHeightmap = generateRandomTerrain(flatHeightmap, startPointX, startPointY, sectionSize, pixelValue);
             cout << "Metode: " << i << " - Ferdig " << endl;
@@ -194,7 +192,7 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/random_terrain.png", heightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/random_terrain.png", heightmap, compression_params);
 
             imshow("heightmap5", heightmap);
         }else{

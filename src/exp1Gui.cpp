@@ -293,7 +293,7 @@ void resetSimulation(){
                         "Gazebo could not reset the simulation for us");
     }
     dyret_utils::reset_dyret();
-    sleep(2);
+    sleep(5);
 }
 
 void pauseSimulation(){
