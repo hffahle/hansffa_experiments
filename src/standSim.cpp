@@ -1,3 +1,7 @@
+//
+// Created by hansffa on 07.04.17.
+//
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +27,9 @@
 #include <fstream>
 #include <iomanip>
 #include <ctime>
+
+#include "tf/transform_datatypes.h"
+#include "tf/LinearMath/Matrix3x3.h"
 
 #include <dynamic_reconfigure/DoubleParameter.h>
 #include <dynamic_reconfigure/Reconfigure.h>
@@ -60,6 +67,12 @@ int currentIndividual;
 
 std::vector<std::string> fitnessFunctions;
 
+int startGait1(float distance, ros::NodeHandle n, std::vector<bool> usedGait);
+int startGait2(float distance, ros::NodeHandle n, std::vector<bool> usedGait);
+int startGait3(float distance, ros::NodeHandle n, std::vector<bool> usedGait);
+int startGait4(float distance, ros::NodeHandle n, std::vector<bool> usedGait);
+int startGait5(float distance, ros::NodeHandle n, std::vector<bool> usedGait);
+
 FILE* getEvoPathFileHandle(std::string fileName){
     std::string line;
     std::ifstream myfile ("currentEvoDir");
@@ -82,33 +95,6 @@ FILE* getEvoPathFileHandle(std::string fileName){
 
 
 
-std::string findBestGait(std::vector<std::vector<float>> data, std::vector<std::string> gaits){
-    std::vector<float> bestData = data.at(0);
-    std::vector<float> testData;
-    std::string bestGait = gaits.at(0);
-
-    for(int i = 1; i < data.size(); i++){
-        testData = data.at(i);
-        //Testing the fall percentage
-        if(testData.at(0) < bestData.at(0)){
-            bestData = testData;
-            bestGait = gaits.at(i);
-        //Testing how accurate the gait is compare to speed
-        }else if(testData.at(0) == bestData.at(0) &&
-                (testData.at(1) - 5) < bestData.at(1) &&
-                (std::abs(testData.at(3)) - 0.1) < std::abs(bestData.at(3)) &&
-                 testData.at(4) < bestData.at(4) &&
-                 testData.at(5) > bestData.at(5)){
-
-            bestData = testData;
-            bestGait = gaits.at(i);
-
-        }
-    }
-
-    return bestGait;
-
-}
 std::vector<std::vector<float>> readData(std::string fileName, std::vector<std::string> gaits){
 
     using namespace boost::algorithm;
@@ -375,53 +361,126 @@ void sendTrajectories(std::vector<float> givenTrajectoryDistances, std::vector<f
 
 }
 
-bool checkFall(ros::NodeHandle n){
-    ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
-    gazebo_msgs::GetModelState getmodelstate;
-    getmodelstate.request.model_name ="dyret";
-    gms_c.call(getmodelstate);
+int checkStability(ros::NodeHandle n, float goalDistance){
 
-    float qw = getmodelstate.response.pose.orientation.w;
-    float angle = 2 * acos(qw);
 
-    float pi = 3.14159265359;
-    angle = angle * (180/pi);
+    float avg_roll = 0;
+    float lastH_avg_roll = 0;
+    float lastL_avg_roll = std::numeric_limits<float>::max();;
+    float avg_pitch = 0;
+    float lastH_avg_pitch = 0;
+    float lastL_avg_pitch = std::numeric_limits<float>::max();
+    float currentDistance;
+    for(int j = 0; j < 40; j++) {
+        for (int i = 0; i < 100; i++) {
+            ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+            gazebo_msgs::GetModelState getmodelstate;
+            getmodelstate.request.model_name = "dyret";
+            gms_c.call(getmodelstate);
 
-    if(angle > 120){
-        return true;
+            float qx = getmodelstate.response.pose.orientation.x;
+            float qy = getmodelstate.response.pose.orientation.y;
+            float qz = getmodelstate.response.pose.orientation.z;
+            float qw = getmodelstate.response.pose.orientation.w;
+
+            tf::Quaternion quat(qx, qy, qz, qw);
+            tf::Matrix3x3 m(quat);
+            double roll, pitch, yaw;
+            m.getRPY(roll, pitch, yaw);
+
+            avg_roll = avg_roll + std::abs(roll);
+            avg_pitch = avg_pitch + std::abs(pitch);
+
+            float x = getmodelstate.response.pose.position.x;
+            float y = getmodelstate.response.pose.position.y;
+            currentDistance = sqrt((x * x) + (y * y));
+
+            if(currentDistance >= goalDistance ){
+                return 0;
+            }
+
+            sleep(0.0005);
+
+        }
+        avg_roll = avg_roll / 200;
+        avg_pitch = avg_pitch / 200;
+
+
+        if (avg_pitch > lastH_avg_pitch) {
+            lastH_avg_pitch = avg_pitch;
+        }
+        if (avg_pitch < lastL_avg_pitch) {
+            lastL_avg_pitch = avg_pitch;
+        }
+        if (avg_roll > lastH_avg_roll) {
+            lastH_avg_roll = avg_roll;
+        }
+        if (avg_roll < lastL_avg_roll) {
+            lastL_avg_roll = avg_roll;
+        }
+
+    }
+    avg_pitch = (lastH_avg_pitch+lastL_avg_pitch)/2;
+    avg_roll = (lastL_avg_roll + lastH_avg_roll)/2;
+
+    std::cout << "\n " << "Avg_roll: " << avg_roll << "\n" << std::endl;
+    std::cout << "\n " << "Avg_pitch: " << avg_pitch << "\n" << std::endl;
+
+
+    if(avg_roll > 1 || avg_pitch > 1){ //fall
+        return 1;
+    }
+    if(avg_roll < 0.03 && avg_pitch < 0.03){ //faster
+        return 2;
+    }
+    if(avg_roll > 0.06 || avg_pitch > 0.06){ //slower
+        return 3;
     }
 
-    return false;
+    return 0;
 }
 
-bool checkDistance(float goalDistance, std::vector<float> startPosition, ros::NodeHandle n){
+
+
+int checkDistance(float goalDistance, std::vector<float> startPosition, ros::NodeHandle n, bool faster, bool slower) {
 
 
     float x = startPosition.at(0);
     float y = startPosition.at(1);
 
-    float currentDistance = sqrt((x*x) + (y*y));
+    float currentDistance = sqrt((x * x) + (y * y));
 
-    while(currentDistance < goalDistance){
+    while (currentDistance < goalDistance) {
         ros::ServiceClient gms_c = n.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
         gazebo_msgs::GetModelState getmodelstate;
-        getmodelstate.request.model_name ="dyret";
+        getmodelstate.request.model_name = "dyret";
         gms_c.call(getmodelstate);
 
         float x = getmodelstate.response.pose.position.x;
         float y = getmodelstate.response.pose.position.y;
 
-        currentDistance = sqrt((x*x) + (y*y));
 
-        if(checkFall(n)){
-            return true;
+        int stability = checkStability(n, goalDistance);
+        if (stability == 4) {
+            return 0;
+        }
+        if (stability == 1) {
+            return stability;
+        }
+        if (stability == 2 && faster) {
+            return stability;
+        }
+        if (stability == 3 && slower) {
+            return stability;
         }
 
+        currentDistance = sqrt((x * x) + (y * y));
 
-        sleep(0.3);
     }
 
-    return false;
+    sleep(0.3);
+
+    return 0;
 
 }
 
@@ -646,7 +705,7 @@ public:
     }
 */
 
-     individualParameters = { 50 +  ind.data(0)*100.0, // stepLength       50 -> 150
+        individualParameters = { 50 +  ind.data(0)*100.0, // stepLength       50 -> 150
                                  25 + (ind.data(1)*50.0), // stepHeight       25 -> 75
                                  ind.data(2)*50.0,        // smoothing         0 -> 50
                                  frequency,               // frequency       0.2 -> 1.5
@@ -752,146 +811,324 @@ std::string getEvoInfoString(){
     return stringStream.str();
 }
 
+int startGait5(float distance, ros::NodeHandle n, std::vector<bool> usedGait) {
+    printf("\n Gait 5 \n");
+    std::vector<float> startPosition;
+        std::vector<double> individualParameters;
+        individualParameters = {142.497879,  // stepLength
+                                74.101233,  // stepHeight
+                                40.617961,  // smoothing
+                                1.176102,  // gaitFrequency
+                                NAN,  // speed
+                                0.187434,  // wagPhase -0.2 -> 0.2
+                                34.262195,  // wagAmplitude_x
+                                33.369043}; // wagAmplitude_y
 
-float startPredRun(std::vector<std::string> gaits, std::vector<float> distances, ros::NodeHandle n) {
+        fitnessFunctions.clear();
+        fitnessFunctions.emplace_back("MocapSpeed");
+        fitnessFunctions.emplace_back("Stability");
 
-    std::string gait1 = "MO_speedStability_1_balanced";
-    std::string gait2 = "MO_speedStability_1_fast";
-    std::string gait3 = "SO_speed_1_fast";
-    std::string gait4 = "MO_speedStability_1_stable";
-    std::string gait5 = "SO_stability_1_stable";
+        startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
+    sleep(14);
+    int action = checkDistance(distance, startPosition, n, false, true);
+    std::cout << "\n Gait 5: " << usedGait.at(4) << "\n" << std::endl;
+    if(!usedGait.at(4)) {
+        if (action == 1) { // fall
+            startPosition.clear();
+            stopWalking();
+            sleep(5);
+            return action;
+        }
+        if (action == 3) { // slower
+            startPosition.clear();
+            stopWalking();
+            usedGait.at(3) = true;
+            sleep(5);
+            if (startGait4(distance, n, usedGait) == 1) {
+                return 1;
+            }
+        }
+    }
+    else{
+        while(true){
+            action = checkDistance(distance, startPosition, n, false, false);
+            if(action == 1){
+                return 1;
+            }else if(action == 0){
+                break;
+            }
+        }
+    }
+    startPosition.clear();
+    stopWalking();
+    sleep(5);
 
+    return 0;
+}
+int startGait4(float distance, ros::NodeHandle n, std::vector<bool> usedGait) {
+    printf("\n Gait 4 \n");
+    std::vector<float> startPosition;
+        std::vector<double> individualParameters;
+        individualParameters = {149.586797,  // stepLength
+                                48.647040,  // stepHeight
+                                22.238316,  // smoothing
+                                1.089446,  // gaitFrequency
+                                NAN,  // speed
+                                0.161493,  // wagPhase -0.2 -> 0.2
+                                48.757249,  // wagAmplitude_x
+                                7.464203}; // wagAmplitude_y
+
+        fitnessFunctions.clear();
+        fitnessFunctions.emplace_back("MocapSpeed");
+        fitnessFunctions.emplace_back("Stability");
+
+        startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
+    sleep(14);
+    int action = checkDistance(distance, startPosition, n, true, true);
+    std::cout << "\n Gait 4: " << usedGait.at(3) << "\n" << std::endl;
+    if(!usedGait.at(3)) {
+
+        if (action == 1) { // fall
+            startPosition.clear();
+            stopWalking();
+            sleep(5);
+            return action;
+        }
+
+        if (action == 2) { // faster
+            startPosition.clear();
+            stopWalking();
+            usedGait.at(3) = true;
+            sleep(5);
+            if (startGait5(distance, n, usedGait) == 1) {
+                return 1;
+            }
+        }
+
+        if (action == 3) { // slower
+            startPosition.clear();
+            stopWalking();
+            sleep(5);
+            if (startGait3(distance, n, usedGait) == 1) {
+                return 1;
+            }
+        }
+    }else{
+        while(true){
+            action = checkDistance(distance, startPosition, n, false, false);
+            if(action == 1){
+                return 1;
+            }else if(action == 0){
+                break;
+            }
+        }
+    }
+    startPosition.clear();
+    stopWalking();
+    sleep(5);
+
+    return 0;
+}
+
+int startGait3(float distance, ros::NodeHandle n, std::vector<bool> usedGait) {
+
+    printf("\n Gait 3 \n");
     std::vector<float> startPosition;
 
-    for (int i = 0; i < gaits.size(); i++) {
-        if (gaits.at(i).compare(gait1) == 0) {
-            std::vector<double> individualParameters;
-            individualParameters = {67.643906,  // stepLength
-                                    61.517610,  // stepHeight
-                                    16.663189,  // smoothing
-                                    0.650102,  // gaitFrequency
-                                    NAN,  // speed
-                                    0.102479,  // wagPhase -0.2 -> 0.2
-                                    0.0,  // wagAmplitude_x
-                                    28.169140}; // wagAmplitude_y
+        std::vector<double> individualParameters;
+        individualParameters = {67.643906,  // stepLength
+                                61.517610,  // stepHeight
+                                16.663189,  // smoothing
+                                0.650102,  // gaitFrequency
+                                NAN,  // speed
+                                0.102479,  // wagPhase -0.2 -> 0.2
+                                0.0,  // wagAmplitude_x
+                                28.169140}; // wagAmplitude_y
 
-            fitnessFunctions.clear();
-            fitnessFunctions.emplace_back("MocapSpeed");
-            fitnessFunctions.emplace_back("Stability");
+        fitnessFunctions.clear();
+        fitnessFunctions.emplace_back("MocapSpeed");
+        fitnessFunctions.emplace_back("Stability");
 
-            startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
-            if(checkDistance(distances.at(i), startPosition, n)){
-                startPosition.clear();
-                stopWalking();
-                return true;
-            }
+        startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
+    sleep(14);
+    int action = checkDistance(distance, startPosition, n, true, true);
+    std::cout << "\n Gait 3: " << usedGait.at(2) << "\n" << std::endl;
+    if(!usedGait.at(2)) {
+
+        if (action == 1) { // fall
             startPosition.clear();
             stopWalking();
             sleep(5);
-        } else if (gaits.at(i).compare(gait2) == 0) {
-            std::vector<double> individualParameters;
-            individualParameters = {149.586797,  // stepLength
-                                    48.647040,  // stepHeight
-                                    22.238316,  // smoothing
-                                    1.089446,  // gaitFrequency
-                                    NAN,  // speed
-                                    0.161493,  // wagPhase -0.2 -> 0.2
-                                    48.757249,  // wagAmplitude_x
-                                    7.464203}; // wagAmplitude_y
+            return action;
+        }
 
-            fitnessFunctions.clear();
-            fitnessFunctions.emplace_back("MocapSpeed");
-            fitnessFunctions.emplace_back("Stability");
-
-            startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
-            if(checkDistance(distances.at(i), startPosition, n)){
-                startPosition.clear();
-                stopWalking();
-                return true;
+        if (action == 2) { // faster
+            startPosition.clear();
+            stopWalking();
+            usedGait.at(2) = true;
+            sleep(5);
+            if (startGait4(distance, n, usedGait) == 1) {
+                return 1;
             }
+        }
+
+        if (action == 3) { // slower
             startPosition.clear();
             stopWalking();
             sleep(5);
-        } else if (gaits.at(i).compare(gait3) == 0) {
-            std::vector<double> individualParameters;
-            individualParameters = {142.497879,  // stepLength
-                                    74.101233,  // stepHeight
-                                    40.617961,  // smoothing
-                                    1.176102,  // gaitFrequency
-                                    NAN,  // speed
-                                    0.187434,  // wagPhase -0.2 -> 0.2
-                                    34.262195,  // wagAmplitude_x
-                                    33.369043}; // wagAmplitude_y
-
-            fitnessFunctions.clear();
-            fitnessFunctions.emplace_back("MocapSpeed");
-            fitnessFunctions.emplace_back("Stability");
-
-            startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
-            if(checkDistance(distances.at(i), startPosition, n)){
-                startPosition.clear();
-                stopWalking();
-                return true;
+            if (startGait2(distance, n, usedGait) == 1) {
+                return 1;
             }
-            startPosition.clear();
-            stopWalking();
-            sleep(5);
-        } else if (gaits.at(i).compare(gait4) == 0) {
-            std::vector<double> individualParameters;
-            individualParameters = {82.370520,  // stepLength
-                                    60.338199,  // stepHeight
-                                    47.710946,  // smoothing
-                                    0.241783,  // gaitFrequency
-                                    NAN,  // speed
-                                    0.089293,  // wagPhase -0.2 -> 0.2
-                                    44.656688,  // wagAmplitude_x
-                                    23.324150}; // wagAmplitude_y
-
-            fitnessFunctions.clear();
-            fitnessFunctions.emplace_back("MocapSpeed");
-            fitnessFunctions.emplace_back("Stability");
-
-            startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
-            if(checkDistance(distances.at(i), startPosition, n)){
-                startPosition.clear();
-                stopWalking();
-                return true;
+        }
+    }else{
+        while(true){
+            action = checkDistance(distance, startPosition, n, false, false);
+            if(action == 1){
+                return 1;
+            }else if(action == 0){
+                break;
             }
-            startPosition.clear();
-            stopWalking();
-            sleep(5);
-        } else if (gaits.at(i).compare(gait5) == 0) {
-            std::vector<double> individualParameters;
-            individualParameters = {62.413095,  // stepLength
-                                    58.627531,  // stepHeight
-                                    29.707131,  // smoothing
-                                    0.200674,  // gaitFrequency
-                                    NAN,  // speed
-                                    0.014742,  // wagPhase -0.2 -> 0.2
-                                    48.275462,  // wagAmplitude_x
-                                    25.249073}; // wagAmplitude_y
-
-            fitnessFunctions.clear();
-            fitnessFunctions.emplace_back("MocapSpeed");
-            fitnessFunctions.emplace_back("Stability");
-
-            startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
-            if(checkDistance(distances.at(i), startPosition, n)){
-                startPosition.clear();
-                stopWalking();
-                return true;
-            }
-            startPosition.clear();
-            stopWalking();
-            sleep(5);
-        } else {
-            printf("Something went wrong");
         }
     }
 
-    return false;
+    startPosition.clear();
+    stopWalking();
+    sleep(5);
+
+    return 0;
 
 }
+
+
+int startGait2(float distance, ros::NodeHandle n, std::vector<bool> usedGait) {
+
+    printf("\n Gait 2 \n");
+    std::vector<float> startPosition;
+
+        std::vector<double> individualParameters;
+        individualParameters = {82.370520,  // stepLength
+                                60.338199,  // stepHeight
+                                47.710946,  // smoothing
+                                0.241783,  // gaitFrequency
+                                NAN,  // speed
+                                0.089293,  // wagPhase -0.2 -> 0.2
+                                44.656688,  // wagAmplitude_x
+                                23.324150}; // wagAmplitude_y
+
+        fitnessFunctions.clear();
+        fitnessFunctions.emplace_back("MocapSpeed");
+        fitnessFunctions.emplace_back("Stability");
+
+        startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
+    sleep(14);
+    int action = checkDistance(distance, startPosition, n, true, true);
+    std::cout << "\n Gait 2: " << usedGait.at(1) << "\n" << std::endl;
+    if(!usedGait.at(1)) {
+
+        if (action == 1) { // fall
+            startPosition.clear();
+            stopWalking();
+            sleep(5);
+            return action;
+        }
+
+        if (action == 2) { // faster
+            startPosition.clear();
+            stopWalking();
+            usedGait.at(1) = true;
+            sleep(5);
+            if (startGait3(distance, n, usedGait) == 1) {
+                return 1;
+            }
+        }
+
+        if (action == 3) { // slower
+            startPosition.clear();
+            stopWalking();
+            sleep(5);
+            if (startGait1(distance, n, usedGait) == 1) {
+                return 1;
+            }
+        }
+    }else{
+        while(true){
+            action = checkDistance(distance, startPosition, n, false, false);
+            if(action == 1){
+                return 1;
+            }else if(action == 0){
+                break;
+            }
+        }
+    }
+
+    startPosition.clear();
+    stopWalking();
+    sleep(5);
+
+    return 0;
+}
+
+
+
+
+
+int startGait1(float distance, ros::NodeHandle n, std::vector<bool> usedGait) {
+    printf("\n Gait 1 \n");
+    std::vector<float> startPosition;
+
+
+    std::vector<double> individualParameters;
+    individualParameters = {62.413095,  // stepLength
+                            58.627531,  // stepHeight
+                            29.707131,  // smoothing
+                            0.200674,  // gaitFrequency
+                            NAN,  // speed
+                            0.014742,  // wagPhase -0.2 -> 0.2
+                            48.275462,  // wagAmplitude_x
+                            25.249073}; // wagAmplitude_y
+
+    fitnessFunctions.clear();
+    fitnessFunctions.emplace_back("MocapSpeed");
+    fitnessFunctions.emplace_back("Stability");
+
+    startPosition = startWalking(individualParameters, trajectoryMessage_pub, get_gait_evaluation_client, n);
+    sleep(14);
+    int action = checkDistance(distance, startPosition, n, true, false);
+    std::cout << "\n Gait 1: " << usedGait.at(0) << "\n" << std::endl;
+    if(!usedGait.at(0)) {
+        if (action == 1) { // fall
+            startPosition.clear();
+            stopWalking();
+            sleep(5);
+            return action;
+        }
+
+        if (action == 2) { // faster
+            startPosition.clear();
+            stopWalking();
+            usedGait.at(0) = true;
+            sleep(5);
+            if (startGait2(distance, n, usedGait) == 1) {
+                return 1;
+            }
+        }
+    }else{
+        while(true){
+            action = checkDistance(distance, startPosition, n, false, false);
+            if(action == 1){
+                return 1;
+            }else if(action == 0){
+                break;
+            }
+        }
+    }
+    startPosition.clear();
+    stopWalking();
+    sleep(5);
+
+    return 0;
+}
+
 
 int main(int argc, char **argv){
 //const char *path;
@@ -932,21 +1169,10 @@ int main(int argc, char **argv){
     resetGaitRecording(get_gait_evaluation_client);
 
     std::vector<std::string> gaits;
-    std::vector<std::vector<float>> horzData;
-    std::vector<std::vector<float>> vertData;
-    std::vector<std::vector<float>> horzVertData;
-    std::vector<std::vector<float>> randData;
-    std::vector<std::vector<float>> bumpData;
 
-    std::string bestHorz = "";
-    std::string bestVert = "";
-    std::string bestHorzVert = "";
-    std::string bestRand = "";
-    std::string bestBump = "";
-
-    std::vector<std::string> bestGaits;
     std::vector<float> distances;
     std::vector<double> totalTime;
+    std::vector<bool> usedGait;
 
     int numberOfFalls = 0;
     int numberSim = 1;
@@ -959,6 +1185,7 @@ int main(int argc, char **argv){
     double percentage = 0;
     double dNOF = 0;
     double dNOS = 0;
+    std::clock_t begin;
 
 
 
@@ -966,7 +1193,7 @@ int main(int argc, char **argv){
 
     int inputChar;
     do {
-        printf("1 - Prediction simulation\n"
+        printf("1 - Stabalizing simulation\n"
                        "0 - Exit\n> ");
 
         currentIndividual = 1;
@@ -977,35 +1204,7 @@ int main(int argc, char **argv){
 
         switch(inputChar){
             case '1':
-                gaits = getGaits("/home/hansffa/Documents/Masteroppgave/Resultater/gaits.txt");
-
-                horzData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Horizontal.txt", gaits);
-                vertData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Vertical.txt", gaits);
-                horzVertData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Horz_Vert.txt", gaits);
-                randData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Random.txt", gaits);
-                bumpData = readData("/home/hansffa/Documents/Masteroppgave/Resultater/Endelige/MC_Bump.txt", gaits);
-
-                for(int i = 0; i < 5; i++){
-                    if(i == 0) {
-                        bestHorz = findBestGait(horzData, gaits);
-                    }else if(i == 1){
-                        bestVert = findBestGait(vertData, gaits);
-                    }else if(i == 2){
-                        bestHorzVert = findBestGait(horzVertData, gaits);
-                    }else if(i == 3){
-                        bestRand = findBestGait(randData, gaits);
-                    }else if(i == 4){
-                        bestBump = findBestGait(bumpData, gaits);
-                    }else{
-                        printf("Something went wrong");
-                    }
-                }
-
-                bestGaits.push_back(bestHorz);
-                bestGaits.push_back(bestVert);
-                bestGaits.push_back(bestHorzVert);
-                bestGaits.push_back(bestRand);
-                bestGaits.push_back(bestBump);
+                gaits = getGaits("/home/hansffa/Documents/Masteroppgave/Resultater/gaits_stab.txt");
 
                 distances.push_back(1.6);
                 distances.push_back(3.8);
@@ -1013,21 +1212,34 @@ int main(int argc, char **argv){
                 distances.push_back(8.2);
                 distances.push_back(9.5);
 
-                resetSimulation();
-                for(int i = 0; i < numberSim; i++){
-                    std::clock_t begin = clock();
-                    if(startPredRun(bestGaits, distances, n)){
-                        numberOfFalls = numberOfFalls + 1;
-                    }else{
-                        elapsed_secs = (getTime() - (startTime + endTime));
-                        totalTime.push_back(elapsed_secs);
-                    }
 
-                    pauseSimulation();
-                    unpauseSimulation();
-                    resetSimulation();
-                    sleep(5);
+
+                resetSimulation();
+                begin = clock();
+               for(int i = 0; i < distances.size(); i++){
+                   usedGait.push_back(false);
+                   usedGait.push_back(false);
+                   usedGait.push_back(false);
+                   usedGait.push_back(false);
+                   usedGait.push_back(false);
+
+                   int action = startGait1(distances.at(i), n, usedGait);
+                   if (action == 1) {
+                       numberOfFalls = numberOfFalls + 1;
+                       break;
+                   }
                 }
+                elapsed_secs = (getTime() - (startTime + endTime));
+                totalTime.push_back(elapsed_secs);
+
+                pauseSimulation();
+                unpauseSimulation();
+                resetSimulation();
+                sleep(5);
+
+
+
+
 
                 printf("Summary Prediction:\n");
                 printf("Robot: Dyret\n");

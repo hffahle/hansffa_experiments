@@ -10,11 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fccd861c-79a2-4e2f-a232-0bca040fdbad" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/standSim.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/exp1Gui.cpp" afterPath="$PROJECT_DIR$/src/exp1Gui.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/meshGen.cpp" afterPath="$PROJECT_DIR$/src/meshGen.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/predSim.cpp" afterPath="$PROJECT_DIR$/src/predSim.cpp" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/worlds/my_mesh.world" afterPath="$PROJECT_DIR$/worlds/my_mesh.world" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -32,21 +33,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="bump_mesh.world" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/worlds/bump_mesh.world">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="432">
-              <caret line="24" column="34" lean-forward="false" selection-start-line="24" selection-start-column="34" selection-end-line="24" selection-end-column="34" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="exp1Gui.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/exp1Gui.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="342">
-              <caret line="295" column="11" lean-forward="false" selection-start-line="295" selection-start-column="11" selection-end-line="295" selection-end-column="11" />
+            <state relative-caret-position="-1757">
+              <caret line="764" column="4" lean-forward="false" selection-start-line="764" selection-start-column="4" selection-end-line="764" selection-end-column="26" />
               <folding>
                 <element signature="e#18898#18914#0" expanded="true" />
               </folding>
@@ -54,33 +45,45 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="predSim.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="predSim.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/predSim.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="534">
-              <caret line="193" column="7" lean-forward="false" selection-start-line="193" selection-start-column="7" selection-end-line="193" selection-end-column="7" />
+            <state relative-caret-position="529">
+              <caret line="115" column="36" lean-forward="true" selection-start-line="115" selection-start-column="36" selection-end-line="115" selection-end-column="36" />
               <folding>
-                <element signature="e#17274#17290#0" expanded="true" />
+                <element signature="e#20554#20570#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="meshGen.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="standSim.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/standSim.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-522">
+              <caret line="374" column="31" lean-forward="false" selection-start-line="374" selection-start-column="31" selection-end-line="374" selection-end-column="31" />
+              <folding>
+                <element signature="e#22444#22460#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="meshGen.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/meshGen.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3330">
-              <caret line="185" column="0" lean-forward="false" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
+            <state relative-caret-position="-1782">
+              <caret line="42" column="62" lean-forward="false" selection-start-line="42" selection-start-column="62" selection-end-line="42" selection-end-column="62" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="randomWorld.launch" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/launch/randomWorld.launch">
+      <file leaf-file-name="simWorld.launch" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/launch/simWorld.launch">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="180">
+              <caret line="10" column="97" lean-forward="false" selection-start-line="6" selection-start-column="1" selection-end-line="10" selection-end-column="97" />
               <folding />
             </state>
           </provider>
@@ -99,7 +102,7 @@
       <file leaf-file-name="heightmapGen.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/heightmapGen.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2178">
+            <state relative-caret-position="673">
               <caret line="121" column="4" lean-forward="false" selection-start-line="121" selection-start-column="4" selection-end-line="121" selection-end-column="24" />
               <folding />
             </state>
@@ -119,8 +122,8 @@
       <file leaf-file-name="my_mesh.world" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/worlds/my_mesh.world">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="486">
-              <caret line="27" column="54" lean-forward="false" selection-start-line="27" selection-start-column="54" selection-end-line="27" selection-end-column="54" />
+            <state relative-caret-position="612">
+              <caret line="34" column="26" lean-forward="false" selection-start-line="34" selection-start-column="26" selection-end-line="34" selection-end-column="26" />
               <folding />
             </state>
           </provider>
@@ -140,18 +143,14 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>resetTrajectoryPos</find>
-      <find>trajectoryMessage_pub</find>
       <find>reset</find>
       <find>reset = fa</find>
       <find>reset_s</find>
       <find>reset_sim</find>
-      <find>get_gait_evaluation_client</find>
       <find>t_get</find>
       <find>resetSimulation</find>
       <find>Subscriber</find>
       <find>spinner</find>
-      <find>evaluateIndividual</find>
       <find>openFile</find>
       <find>collectGazeboData</find>
       <find>mm</find>
@@ -161,6 +160,18 @@
       <find>lengt</find>
       <find>timeout</find>
       <find>wait</find>
+      <find>evaluateIndi</find>
+      <find>evaluateIndividual</find>
+      <find>trajectoryMsgPu</find>
+      <find>resetTrajectoryPos</find>
+      <find>trajectoryMessage_pub</find>
+      <find>main</find>
+      <find>startPredRun</find>
+      <find>startwalking</find>
+      <find>get_gait_evaluation_client</find>
+      <find>stopWalking</find>
+      <find>isFitnessObjective</find>
+      <find>getStartPoint</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -178,11 +189,12 @@
         <option value="$PROJECT_DIR$/worlds/horzVert_mesh.world" />
         <option value="$PROJECT_DIR$/worlds/horz_mesh.world" />
         <option value="$PROJECT_DIR$/worlds/bump_mesh.world" />
-        <option value="$PROJECT_DIR$/worlds/my_mesh.world" />
-        <option value="$PROJECT_DIR$/src/meshGen.cpp" />
         <option value="$PROJECT_DIR$/worlds/random_mesh.world" />
         <option value="$PROJECT_DIR$/src/exp1Gui.cpp" />
+        <option value="$PROJECT_DIR$/worlds/my_mesh.world" />
         <option value="$PROJECT_DIR$/src/predSim.cpp" />
+        <option value="$PROJECT_DIR$/src/standSim.cpp" />
+        <option value="$PROJECT_DIR$/src/meshGen.cpp" />
       </list>
     </option>
   </component>
@@ -486,20 +498,39 @@
       <workItem from="1487067580395" duration="36908000" />
       <workItem from="1488375376682" duration="586000" />
       <workItem from="1488530637516" duration="2182000" />
-      <workItem from="1489130286120" duration="6209000" />
+      <workItem from="1489130286120" duration="8591000" />
+      <workItem from="1489389118889" duration="8143000" />
+      <workItem from="1489399811126" duration="193000" />
+      <workItem from="1489400704566" duration="53000" />
+      <workItem from="1489405867448" duration="6364000" />
+      <workItem from="1489657906575" duration="584000" />
+      <workItem from="1490111633883" duration="18643000" />
+      <workItem from="1490372299088" duration="40000" />
+      <workItem from="1490451934974" duration="733000" />
+      <workItem from="1490605342867" duration="301000" />
+      <workItem from="1491395286886" duration="2224000" />
+      <workItem from="1491409722802" duration="96000" />
+      <workItem from="1491459289390" duration="41000" />
+      <workItem from="1491468675638" duration="2025000" />
+      <workItem from="1491569439094" duration="692000" />
+      <workItem from="1491812690451" duration="17174000" />
+      <workItem from="1491832377277" duration="1668000" />
+      <workItem from="1491898881435" duration="15504000" />
+      <workItem from="1491997659459" duration="706000" />
+      <workItem from="1492069458736" duration="7761000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="184011000" />
+    <option name="totallyTimeSpent" value="269338000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="24" width="1920" height="1176" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24947916" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32970026" sideWeight="0.49791667" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="CMake" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.328792" sideWeight="0.49791667" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32970026" sideWeight="0.50208336" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -527,16 +558,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/exp1Gui.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#18898#18914#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/launch/hardwareTest.launch">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -803,13 +824,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/launch/simWorld.launch">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="10" column="97" lean-forward="false" selection-start-line="6" selection-start-column="1" selection-end-line="10" selection-end-column="97" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/launch/vertWorld.launch">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -842,47 +856,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="432">
           <caret line="24" column="34" lean-forward="false" selection-start-line="24" selection-start-column="34" selection-end-line="24" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/worlds/heightmap.world">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="34" column="32" lean-forward="false" selection-start-line="34" selection-start-column="32" selection-end-line="34" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/launch/meshWorld.launch">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/worlds/my_mesh.world">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="486">
-          <caret line="27" column="54" lean-forward="false" selection-start-line="27" selection-start-column="54" selection-end-line="27" selection-end-column="54" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/heightmapGen.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2178">
-          <caret line="121" column="4" lean-forward="false" selection-start-line="121" selection-start-column="4" selection-end-line="121" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/meshGen.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3330">
-          <caret line="185" column="0" lean-forward="false" selection-start-line="185" selection-start-column="0" selection-end-line="185" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -890,6 +863,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/worlds/heightmap.world">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="612">
+          <caret line="34" column="32" lean-forward="false" selection-start-line="34" selection-start-column="32" selection-end-line="34" selection-end-column="32" />
           <folding />
         </state>
       </provider>
@@ -902,10 +882,26 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/launch/simWorld.launch">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="97" lean-forward="false" selection-start-line="6" selection-start-column="1" selection-end-line="10" selection-end-column="97" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/launch/meshWorld.launch">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/exp1Gui.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="295" column="11" lean-forward="false" selection-start-line="295" selection-start-column="11" selection-end-line="295" selection-end-column="11" />
+        <state relative-caret-position="-1757">
+          <caret line="764" column="4" lean-forward="false" selection-start-line="764" selection-start-column="4" selection-end-line="764" selection-end-column="26" />
           <folding>
             <element signature="e#18898#18914#0" expanded="true" />
           </folding>
@@ -914,11 +910,45 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/predSim.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="534">
-          <caret line="193" column="7" lean-forward="false" selection-start-line="193" selection-start-column="7" selection-end-line="193" selection-end-column="7" />
+        <state relative-caret-position="529">
+          <caret line="115" column="36" lean-forward="true" selection-start-line="115" selection-start-column="36" selection-end-line="115" selection-end-column="36" />
           <folding>
-            <element signature="e#17274#17290#0" expanded="true" />
+            <element signature="e#20554#20570#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/standSim.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-522">
+          <caret line="374" column="31" lean-forward="false" selection-start-line="374" selection-start-column="31" selection-end-line="374" selection-end-column="31" />
+          <folding>
+            <element signature="e#22444#22460#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/heightmapGen.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="673">
+          <caret line="121" column="4" lean-forward="false" selection-start-line="121" selection-start-column="4" selection-end-line="121" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/worlds/my_mesh.world">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="612">
+          <caret line="34" column="26" lean-forward="false" selection-start-line="34" selection-start-column="26" selection-end-line="34" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/meshGen.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1782">
+          <caret line="42" column="62" lean-forward="false" selection-start-line="42" selection-start-column="62" selection-end-line="42" selection-end-column="62" />
+          <folding />
         </state>
       </provider>
     </entry>

@@ -75,6 +75,16 @@ target_link_libraries(predSim ${GAZEBO_LIBRARIES})
 add_dependencies(predSim
   ${catkin_EXPORTED_TARGETS})
 
+add_executable(standSim
+               src/standSim.cpp
+        )
+target_link_libraries(standSim ${catkin_LIBRARIES})
+target_link_libraries(standSim ${Boost_LIBRARIES})
+target_link_libraries(standSim ${TBB_LIBRARIES})
+target_link_libraries(standSim ${GAZEBO_LIBRARIES})
+add_dependencies(standSim
+  ${catkin_EXPORTED_TARGETS})
+
 add_executable(hardwareTest
                src/hardwareTest.cpp
               )

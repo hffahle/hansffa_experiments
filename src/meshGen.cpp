@@ -40,7 +40,7 @@ Mat generateRandomTerrain(Mat heightmap, int x, int y, int sectionSize, int pixe
     //Setter hvert pixel i bilde til en tilfeldig verdi
     for(int i = x; i < (x + sectionSize); i++){
         for(int j = y; j < (y + sectionSize); j++){
-            int randPixelVal = 75 + rand() % ((pixelValue - 75) + 1);
+            int randPixelVal = 40 + rand() % ((pixelValue - 40) + 1);
             heightmap.at<Vec3b>(i,j)[0] = randPixelVal;
             heightmap.at<Vec3b>(i,j)[1] = randPixelVal;
             heightmap.at<Vec3b>(i,j)[2] = randPixelVal;
@@ -53,19 +53,19 @@ Mat generateRandomTerrain(Mat heightmap, int x, int y, int sectionSize, int pixe
 //Lager x antall dumper i terrenget
 Mat generateRandomBumps(Mat heightmap, int x, int y, int sectionSize)
 {
-    int pixelValue = 90;
-    for(int i = 0; i < 500; i++){
+    int pixelValue = 40;
+    for(int i = 0; i < 50; i++){
         //Genererer et tall mellom 0 og heightmap.at<Vec3b>(i, j)[0] = pixelValue;
         int startPointX = x + rand() % (sectionSize);
         int startPointY = y + rand() % (sectionSize);
         vector<int> usedpointsX;
         vector<int> usedpointsY;
         if(find(usedpointsX.begin(), usedpointsX.end(), startPointX) == usedpointsX.end() && find(usedpointsY.begin(), usedpointsY.end(), startPointY) == usedpointsY.end()){
-            for(int j = startPointX; j < startPointX+3; j++){
-                for(int k = startPointY; k < startPointY+3; k++){
-                    heightmap.at<Vec3b>(j, k)[0] = pixelValue;
-                    heightmap.at<Vec3b>(j, k)[1] = pixelValue;
-                    heightmap.at<Vec3b>(j, k)[2] = pixelValue;
+            for(int j = startPointX; j < startPointX+10; j++){
+                for(int k = startPointY; k < startPointY+10; k++){
+                    heightmap.at<Vec3b>(j, k)[0] = pixelValue + 100;
+                    heightmap.at<Vec3b>(j, k)[1] = pixelValue + 100;
+                    heightmap.at<Vec3b>(j, k)[2] = pixelValue + 100;
                 }
             }
         }
@@ -110,7 +110,7 @@ Mat smoothImg(Mat heightmap)
 {
     Mat smoothMap;
 
-    GaussianBlur(heightmap, smoothMap, Size(5, 5), 0, 0);
+    GaussianBlur(heightmap, smoothMap, Size(3, 3), 0, 0);
 
     return smoothMap;
 }
@@ -118,21 +118,21 @@ Mat smoothImg(Mat heightmap)
 int main()
 {
     //Lager et bilde i en størrelse som Gazebo forstår med spesifikasjoner for bilde.
-    Mat flatHeightmap(1000, 1000, CV_8UC3, Scalar(0, 0, 0));
+    Mat flatHeightmap(400, 400, CV_8UC3, Scalar(0, 0, 0));
 
-    int sectionSize = 980;
+    int sectionSize = 380;
     int startPointX = 10;
     int startPointY = 10;
     int pixelValue = 90;
     Mat tmpHeightmap;
 
-    for(int i = 1; i < 6; i++){
+    for(int i = 5; i < 6; i++){
 
         for(int i = 0; i < flatHeightmap.cols; i++){
             for(int j = 0; j < flatHeightmap.rows; j++){
-                flatHeightmap.at<Vec3b>(i, j)[0] = 75;
-                flatHeightmap.at<Vec3b>(i, j)[1] = 75;
-                flatHeightmap.at<Vec3b>(i, j)[2] = 75;
+                flatHeightmap.at<Vec3b>(i, j)[0] = 40;
+                flatHeightmap.at<Vec3b>(i, j)[1] = 40;
+                flatHeightmap.at<Vec3b>(i, j)[2] = 40;
             }
         }
 
@@ -144,7 +144,7 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/horzVert_terrain.png", horzVertHeightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng/horzVert_terrain.png", horzVertHeightmap, compression_params);
 
             imshow("heightmap1", horzVertHeightmap);
         }else if(i == 2) {
@@ -155,7 +155,7 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/horz_terrain.png", horzHeightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng/horz_terrain.png", horzHeightmap, compression_params);
 
             imshow("heightmap2", horzHeightmap);
         }else if(i == 3){
@@ -167,7 +167,7 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/vert_terrain.png", vertHeightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng/vert_terrain.png", vertHeightmap, compression_params);
 
             imshow("heightmap3", vertHeightmap);
 
@@ -180,7 +180,7 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/bump_terrain.png", heightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng/bump_terrain.png", heightmap, compression_params);
 
             imshow("heightmap4", heightmap);
 
@@ -192,7 +192,7 @@ int main()
             vector<int> compression_params;
             compression_params.push_back(16);
             compression_params.push_back(9);
-            imwrite("/home/hansffa/Documents/Blender/Terreng_1028/random_terrain.png", heightmap, compression_params);
+            imwrite("/home/hansffa/Documents/Blender/Terreng/random_terrain.png", heightmap, compression_params);
 
             imshow("heightmap5", heightmap);
         }else{
